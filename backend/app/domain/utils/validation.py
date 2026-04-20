@@ -14,3 +14,11 @@ def validate_code_params(N: int, K: int) -> None:
 
     if K > N:
         raise ValidationError("K must be less than or equal to N.")
+
+
+def validate_info_bits(info_bits: list[int], K: int) -> None:
+    if len(info_bits) != K:
+        raise ValidationError("Length of info_bits must be equal to K.")
+
+    if any(bit not in (0, 1) for bit in info_bits):
+        raise ValidationError("info_bits must contain only 0 or 1.")

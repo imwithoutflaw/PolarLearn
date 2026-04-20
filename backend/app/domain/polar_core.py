@@ -10,8 +10,6 @@ def _bhattacharyya_sequence_bec(N: int, design_ebn0_db: float) -> list[float]:
     validate_code_params(N, 1)
 
     snr_linear = 10 ** (design_ebn0_db / 10.0)
-
-    # Simple initialization for educational purposes.
     z = [0.5 * (2.718281828459045 ** (-snr_linear))]
 
     while len(z) < N:
@@ -49,3 +47,50 @@ def construct_mask(N: int, K: int, design_ebn0_db: float) -> tuple[list[int], li
     mask = [1 if idx in info_positions else 0 for idx in range(N)]
 
     return mask, info_positions, frozen_positions
+
+
+def polar_encode(u: list[int]) -> list[int]:
+    """
+    In-place style iterative polar transform.
+    Input:
+        u - source vector of length N (N must be a power of two)
+    Output:
+        encoded codeword x
+    """
+    N = len(u)
+    validate_code_params(N, 1)
+
+    x = u[:]
+    step = 1
+
+    while step < N:
+        block_size = step * 2
+        for start in range(0, N, block_size):
+            for i in range(step):
+                x[start + i] ^= x[start + i + step]
+        step *= 2
+
+    return x
+
+
+def compute_stages(u: list[int]) -> list[list[int]]:
+    """
+    Returns intermediate encoder stages for visualization.
+    The first element is the input vector, the last is the codeword.
+    """
+    N = len(u)
+    validate_code_params(N, 1)
+
+    stages = [u[:]]
+    x = u[:]
+    step = 1
+
+    while step < N:
+        block_size = step * 2
+        for start in range(0, N, block_size):
+            for i in range(step):
+                x[start + i] ^= x[start + i + step]
+        stages.append(x[:])
+        step *= 2
+
+    return stages
