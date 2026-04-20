@@ -113,3 +113,22 @@ def test_decoder_endpoint_invalid_mask_length():
 
     assert response.status_code == 422
     assert "Length of mask must be equal to N." == response.json()["detail"]
+
+    def test_ber_endpoint_success():
+        response = client.post(
+            "/api/ber/simulate",
+            json={
+                "N": 8,
+                "K": 4,
+                "design_ebn0_db": 2.0,
+                "ebn0_points_db": [0.0, 1.0],
+                "frames": 3,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["N"] == 8
+        assert data["K"] == 4
+        assert len(data["results"]) == 2

@@ -1,10 +1,21 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+
+from app.api.schemas.ber import BerRequest, BerResponse
+from app.core.exceptions import ValidationError
+from app.domain.services.ber_service import build_ber_response
 
 router = APIRouter()
 
 
-@router.post("/simulate")
-def simulate_ber():
-    return {
-        "message": "BER endpoint placeholder",
-    }
+@router.post("/simulate", response_model=BerResponse)
+def simulate_ber(payload: BerRequest):
+    try:
+        return build_ber_response(
+            N=payload.N,
+            K=payload.K,
+            design_ebn0_db=payload.design_ebn0_db,
+            ebn0_points_db=payload.ebn0_points_db,
+            frames=payload.frames,
+        )
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc

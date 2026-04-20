@@ -42,3 +42,17 @@ def validate_llr(llr: list[float], N: int) -> None:
     for value in llr:
         if not isinstance(value, (int, float)):
             raise ValidationError("llr must contain only numeric values.")
+
+
+def validate_ebn0_points(points: list[float]) -> None:
+    if len(points) == 0:
+        raise ValidationError("ebn0_points_db must not be empty.")
+
+    for value in points:
+        if not isinstance(value, (int, float)):
+            raise ValidationError("ebn0_points_db must contain only numeric values.")
+
+
+def validate_frames(frames: int) -> None:
+    if frames <= 0:
+        raise ValidationError("frames must be greater than 0.")
