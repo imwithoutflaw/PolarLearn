@@ -1,4 +1,4 @@
-from app.api.schemas.decoder import DecoderResponse
+from app.api.schemas.decoder import DecodeStep, DecoderResponse
 from app.domain.polar_core import sc_decode
 from app.domain.utils.validation import validate_code_params, validate_llr, validate_mask
 
@@ -8,11 +8,13 @@ def build_decoder_response(N: int, llr: list[float], mask: list[int]) -> Decoder
     validate_llr(llr, N)
     validate_mask(mask, N)
 
-    estimated_bits, steps = sc_decode(
+    estimated_bits, raw_steps = sc_decode(
         llr=llr,
         mask=mask,
         return_trace=True,
     )
+
+    steps = [DecodeStep(**step) for step in raw_steps]
 
     return DecoderResponse(
         estimated_bits=estimated_bits,

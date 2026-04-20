@@ -32,12 +32,6 @@ def _bhattacharyya_sequence_bec(N: int, design_ebn0_db: float) -> list[float]:
 
 
 def construct_mask(N: int, K: int, design_ebn0_db: float) -> tuple[list[int], list[int], list[int]]:
-    """
-    Returns:
-        mask: binary vector where 1 = information bit, 0 = frozen bit
-        info_positions: indices used for information bits
-        frozen_positions: indices used for frozen bits
-    """
     validate_code_params(N, K)
 
     reliability = _bhattacharyya_sequence_bec(N, design_ebn0_db)
@@ -52,13 +46,6 @@ def construct_mask(N: int, K: int, design_ebn0_db: float) -> tuple[list[int], li
 
 
 def polar_encode(u: list[int]) -> list[int]:
-    """
-    In-place style iterative polar transform.
-    Input:
-        u - source vector of length N (N must be a power of two)
-    Output:
-        encoded codeword x
-    """
     N = len(u)
     validate_code_params(N, 1)
 
@@ -76,10 +63,6 @@ def polar_encode(u: list[int]) -> list[int]:
 
 
 def compute_stages(u: list[int]) -> list[list[int]]:
-    """
-    Returns intermediate encoder stages for visualization.
-    The first element is the input vector, the last is the codeword.
-    """
     N = len(u)
     validate_code_params(N, 1)
 
@@ -99,7 +82,6 @@ def compute_stages(u: list[int]) -> list[list[int]]:
 
 
 def _f_func(a: float, b: float) -> float:
-    # min-sum approximation
     sign = 1.0
     if a < 0:
         sign *= -1.0
@@ -116,7 +98,7 @@ def _sc_decode_recursive(
     llr: list[float],
     mask: list[int],
     offset: int,
-    trace: list[str],
+    trace: list[dict],
 ) -> list[int]:
     n = len(llr)
 
@@ -125,13 +107,35 @@ def _sc_decode_recursive(
 
         if mask[bit_index] == 0:
             trace.append(
-                f"bit {bit_index}: frozen position -> decision = 0 (llr={llr[0]:.4f})"
+                {
+                    "step_type": "leaf_decision",
+                    "offset": offset,
+                    "size": 1,
+                    "bit_index": bit_index,
+                    "role": "frozen",
+                    "llr_value": llr[0],
+                    "decision": 0,
+                    "left_bits": None,
+                    "right_bits": None,
+                    "combined_bits": [0],
+                }
             )
             return [0]
 
         decision = 0 if llr[0] >= 0 else 1
         trace.append(
-            f"bit {bit_index}: information position -> decision = {decision} (llr={llr[0]:.4f})"
+            {
+                "step_type": "leaf_decision",
+                "offset": offset,
+                "size": 1,
+                "bit_index": bit_index,
+                "role": "info",
+                "llr_value": llr[0],
+                "decision": decision,
+                "left_bits": None,
+                "right_bits": None,
+                "combined_bits": [decision],
+            }
         )
         return [decision]
 
@@ -149,7 +153,18 @@ def _sc_decode_recursive(
         u[i + half] = u_right[i]
 
     trace.append(
-        f"combine offset={offset}, size={n}: left={u_left}, right={u_right}, combined={u}"
+        {
+            "step_type": "combine",
+            "offset": offset,
+            "size": n,
+            "bit_index": None,
+            "role": None,
+            "llr_value": None,
+            "decision": None,
+            "left_bits": u_left,
+            "right_bits": u_right,
+            "combined_bits": u,
+        }
     )
 
     return u
@@ -159,20 +174,13 @@ def sc_decode(
     llr: list[float],
     mask: list[int],
     return_trace: bool = True,
-) -> tuple[list[int], list[str]]:
-    """
-    Baseline SC decoder for educational use.
-
-    Returns:
-        estimated_bits: only information bits (according to mask)
-        steps: textual decoding trace
-    """
+) -> tuple[list[int], list[dict]]:
     N = len(llr)
     validate_code_params(N, 1)
     validate_llr(llr, N)
     validate_mask(mask, N)
 
-    trace: list[str] = []
+    trace: list[dict] = []
     u_hat = _sc_decode_recursive(llr=llr, mask=mask, offset=0, trace=trace)
 
     estimated_bits = [u_hat[i] for i in range(N) if mask[i] == 1]
