@@ -1,14 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import mask, encoder, decoder
+from app.api.routes.home import router as home_router
+from app.api.routes.theory import router as theory_router
+from app.api.routes.mask import router as mask_router
+from app.api.routes.encoder import router as encoder_router
+from app.api.routes.decoder import router as decoder_router
+from app.api.routes.ber import router as ber_router
+from app.api.routes.polarization import router as polarization_router
+
 
 app = FastAPI(
     title="PolarLab API",
-    version="1.0.0"
+    version="1.0.0",
+    description="Backend API for Polar Codes educational lab",
 )
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,12 +24,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
-app.include_router(mask.router, prefix="/api/mask", tags=["Mask"])
-app.include_router(encoder.router, prefix="/api/encoder", tags=["Encoder"])
-app.include_router(decoder.router, prefix="/api/decoder", tags=["Decoder"])
-
-
-@app.get("/")
-def root():
-    return {"message": "PolarLab API is running"}
+app.include_router(home_router, tags=["Home"])
+app.include_router(theory_router, prefix="/api/theory", tags=["Theory"])
+app.include_router(mask_router, prefix="/api/mask", tags=["Mask"])
+app.include_router(encoder_router, prefix="/api/encoder", tags=["Encoder"])
+app.include_router(decoder_router, prefix="/api/decoder", tags=["Decoder"])
+app.include_router(ber_router, prefix="/api/ber", tags=["BER"])
+app.include_router(polarization_router, prefix="/api/polarization", tags=["Polarization"])
