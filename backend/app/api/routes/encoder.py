@@ -13,6 +13,7 @@ def run_encoder(payload: EncoderRequest):
         return build_encoder_response(
             N=payload.N,
             K=payload.K,
+            design_ebn0_db=payload.design_ebn0_db,
             info_bits=payload.info_bits,
         )
     except ValidationError as exc:
