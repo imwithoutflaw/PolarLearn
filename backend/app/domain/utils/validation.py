@@ -22,3 +22,23 @@ def validate_info_bits(info_bits: list[int], K: int) -> None:
 
     if any(bit not in (0, 1) for bit in info_bits):
         raise ValidationError("info_bits must contain only 0 or 1.")
+
+
+def validate_mask(mask: list[int], N: int) -> None:
+    if len(mask) != N:
+        raise ValidationError("Length of mask must be equal to N.")
+
+    if any(bit not in (0, 1) for bit in mask):
+        raise ValidationError("mask must contain only 0 or 1.")
+
+    if sum(mask) <= 0:
+        raise ValidationError("mask must contain at least one information position.")
+
+
+def validate_llr(llr: list[float], N: int) -> None:
+    if len(llr) != N:
+        raise ValidationError("Length of llr must be equal to N.")
+
+    for value in llr:
+        if not isinstance(value, (int, float)):
+            raise ValidationError("llr must contain only numeric values.")
