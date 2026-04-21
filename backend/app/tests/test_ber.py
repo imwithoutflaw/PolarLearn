@@ -7,7 +7,8 @@ def test_ber_service_returns_results_for_each_point():
         K=4,
         design_ebn0_db=2.0,
         ebn0_points_db=[0.0, 1.0],
-        frames=5,
+        bits_target=20,
+        min_err_plot=2,
     )
 
     assert response.N == 8
@@ -21,12 +22,11 @@ def test_ber_service_result_shapes_are_valid():
         K=4,
         design_ebn0_db=2.0,
         ebn0_points_db=[0.0],
-        frames=3,
+        bits_target=20,
+        min_err_plot=2,
     )
 
     point = response.results[0]
 
-    assert point.total_frames == 3
-    assert point.total_bits == 12
-    assert 0.0 <= point.ber <= 1.0
-    assert 0.0 <= point.fer <= 1.0
+    assert point.total_bits > 0
+    assert point.bit_errors >= 0

@@ -16,10 +16,11 @@ from app.domain.utils.math_helpers import (
     theoretical_uncoded_bpsk_ber,
 )
 from app.domain.utils.validation import (
+    validate_bits_target,
     validate_code_params,
     validate_ebn0_points,
-    validate_frames,
     validate_info_bits,
+    validate_min_err_plot,
 )
 
 
@@ -28,11 +29,13 @@ def _simulate_single_code(
     K: int,
     design_ebn0_db: float,
     ebn0_points_db: list[float],
-    frames: int,
+    bits_target: int,
+    min_err_plot: int,
 ) -> list[BerPointResponse]:
     validate_code_params(N, K)
     validate_ebn0_points(ebn0_points_db)
-    validate_frames(frames)
+    validate_bits_target(bits_target)
+    validate_min_err_plot(min_err_plot)
 
     mask, info_positions, _ = construct_mask(
         N=N,
@@ -47,11 +50,9 @@ def _simulate_single_code(
         sigma = compute_sigma_from_ebn0(ebn0_db=ebn0_db, rate=rate)
 
         bit_errors = 0
-        frame_errors = 0
         total_bits = 0
-        total_frames = 0
 
-        for _ in range(frames):
+        while total_bits < bits_target and bit_errors < min_err_plot:
             info_bits = [random.randint(0, 1) for _ in range(K)]
             validate_info_bits(info_bits, K)
 
@@ -67,28 +68,25 @@ def _simulate_single_code(
             estimated_bits, _ = sc_decode(llr=llr, mask=mask, return_trace=False)
 
             errors_in_frame = sum(
-                1
-                for expected, estimated in zip(info_bits, estimated_bits)
+                1 for expected, estimated in zip(info_bits, estimated_bits)
                 if expected != estimated
             )
 
             bit_errors += errors_in_frame
-            frame_errors += 1 if errors_in_frame > 0 else 0
             total_bits += K
-            total_frames += 1
 
-        ber = bit_errors / total_bits if total_bits else 0.0
-        fer = frame_errors / total_frames if total_frames else 0.0
+        ber_value = None
+        if bit_errors >= min_err_plot and total_bits > 0:
+            ber_value = bit_errors / total_bits
+        elif total_bits >= bits_target and bit_errors > 0:
+            ber_value = bit_errors / total_bits
 
         results.append(
             BerPointResponse(
                 ebn0_db=ebn0_db,
-                ber=ber,
-                fer=fer,
+                ber=ber_value,
                 bit_errors=bit_errors,
-                frame_errors=frame_errors,
                 total_bits=total_bits,
-                total_frames=total_frames,
             )
         )
 
@@ -100,14 +98,16 @@ def build_ber_response(
     K: int,
     design_ebn0_db: float,
     ebn0_points_db: list[float],
-    frames: int,
+    bits_target: int,
+    min_err_plot: int,
 ) -> BerResponse:
     results = _simulate_single_code(
         N=N,
         K=K,
         design_ebn0_db=design_ebn0_db,
         ebn0_points_db=ebn0_points_db,
-        frames=frames,
+        bits_target=bits_target,
+        min_err_plot=min_err_plot,
     )
 
     return BerResponse(
@@ -116,9 +116,9 @@ def build_ber_response(
         design_ebn0_db=design_ebn0_db,
         results=results,
         explanation=(
-            "BER/FER simulation was performed using random information bits, "
-            "polar encoding, BPSK modulation, AWGN channel, LLR computation, "
-            "and baseline SC decoding."
+            "BER simulation was performed using random information bits, polar encoding, "
+            "BPSK modulation, AWGN channel, LLR computation, and baseline SC decoding. "
+            "Each point was simulated until bits_target was reached or enough errors were collected."
         ),
     )
 
@@ -127,10 +127,12 @@ def build_ber_compare_response(
     codes: list,
     design_ebn0_db: float,
     ebn0_points_db: list[float],
-    frames: int,
+    bits_target: int,
+    min_err_plot: int,
 ) -> BerCompareResponse:
     validate_ebn0_points(ebn0_points_db)
-    validate_frames(frames)
+    validate_bits_target(bits_target)
+    validate_min_err_plot(min_err_plot)
 
     series: list[BerCompareSeriesResponse] = []
 
@@ -144,7 +146,8 @@ def build_ber_compare_response(
             K=K,
             design_ebn0_db=design_ebn0_db,
             ebn0_points_db=ebn0_points_db,
-            frames=frames,
+            bits_target=bits_target,
+            min_err_plot=min_err_plot,
         )
 
         series.append(
@@ -167,11 +170,12 @@ def build_ber_compare_response(
     return BerCompareResponse(
         design_ebn0_db=design_ebn0_db,
         ebn0_points_db=ebn0_points_db,
-        frames=frames,
+        bits_target=bits_target,
+        min_err_plot=min_err_plot,
         series=series,
         theoretical_uncoded_bpsk=theoretical_curve,
         explanation=(
-            "Comparison includes simulated BER/FER curves for multiple polar code lengths "
+            "Comparison includes simulated BER curves for multiple polar code lengths "
             "and the reference theoretical uncoded BPSK BER curve in AWGN."
         ),
     )

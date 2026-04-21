@@ -61,3 +61,11 @@ def validate_frames(frames: int) -> None:
 def validate_code_list(codes: list[object]) -> None:
     if len(codes) == 0:
         raise ValidationError("codes must not be empty.")
+
+def validate_bits_target(bits_target: int) -> None:
+    if bits_target <= 0:
+        raise ValidationError("bits_target must be greater than 0.")
+
+def validate_min_err_plot(min_err_plot: int) -> None:
+    if min_err_plot <= 0:
+        raise ValidationError("min_err_plot must be greater than 0.")

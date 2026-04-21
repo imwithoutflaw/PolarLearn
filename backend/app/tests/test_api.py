@@ -22,6 +22,26 @@ def test_decoder_endpoint_success():
     assert len(data["steps"]) > 0
     assert "step_type" in data["steps"][0]
 
+    def test_ber_endpoint_success():
+        response = client.post(
+            "/api/ber/simulate",
+            json={
+                "N": 8,
+                "K": 4,
+                "design_ebn0_db": 2.0,
+                "ebn0_points_db": [0.0, 1.0],
+                "bits_target": 20,
+                "min_err_plot": 2,
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["N"] == 8
+        assert data["K"] == 4
+        assert len(data["results"]) == 2
+
     def test_ber_compare_endpoint_success():
         response = client.post(
             "/api/ber/compare",
@@ -32,7 +52,8 @@ def test_decoder_endpoint_success():
                 ],
                 "design_ebn0_db": 2.0,
                 "ebn0_points_db": [0.0, 1.0],
-                "frames": 2
+                "bits_target": 20,
+                "min_err_plot": 2
             },
         )
 

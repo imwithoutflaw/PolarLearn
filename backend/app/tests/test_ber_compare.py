@@ -12,7 +12,8 @@ def test_ber_compare_returns_multiple_series_and_theory():
         codes=[CodeItem(8, 4), CodeItem(16, 8)],
         design_ebn0_db=2.0,
         ebn0_points_db=[0.0, 1.0],
-        frames=3,
+        bits_target=20,
+        min_err_plot=2,
     )
 
     assert len(response.series) == 2

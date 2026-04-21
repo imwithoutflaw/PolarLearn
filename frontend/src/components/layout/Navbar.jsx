@@ -53,6 +53,7 @@ export default function Navbar() {
           <NavLink to="/mask">Mask</NavLink>
           <NavLink to="/encoder">Encoder</NavLink>
           <NavLink to="/decoder">Decoder</NavLink>
+          <NavLink to="/ber">BER</NavLink>
         </div>
       </div>
     </div>

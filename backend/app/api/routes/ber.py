@@ -15,7 +15,8 @@ def simulate_ber(payload: BerRequest):
             K=payload.K,
             design_ebn0_db=payload.design_ebn0_db,
             ebn0_points_db=payload.ebn0_points_db,
-            frames=payload.frames,
+            bits_target=payload.bits_target,
+            min_err_plot=payload.min_err_plot,
         )
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -28,7 +29,8 @@ def compare_ber(payload: BerCompareRequest):
             codes=payload.codes,
             design_ebn0_db=payload.design_ebn0_db,
             ebn0_points_db=payload.ebn0_points_db,
-            frames=payload.frames,
+            bits_target=payload.bits_target,
+            min_err_plot=payload.min_err_plot,
         )
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
