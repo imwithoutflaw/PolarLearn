@@ -1,9 +1,7 @@
 import React from "react";
 import { createBrowserRouter } from "react-router-dom";
-import BerPage from "../pages/BerPage.jsx";
-import DecoderPage from "../pages/DecoderPage.jsx";
-import EncoderPage from "../pages/EncoderPage.jsx";
 import MaskPage from "../pages/MaskPage.jsx";
+import EncoderPage from "../pages/EncoderPage.jsx"; // 👈 ДОДАЙ ЦЕ
 
 export const router = createBrowserRouter([
   {
@@ -17,13 +15,5 @@ export const router = createBrowserRouter([
   {
     path: "/encoder",
     element: <EncoderPage />,
-  },
-  {
-    path: "/decoder",
-    element: <DecoderPage />,
-  },
-  {
-    path: "/ber",
-    element: <BerPage />,
   },
 ]);

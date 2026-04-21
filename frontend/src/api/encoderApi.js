@@ -10,7 +10,14 @@ export async function runEncoder(payload) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data?.detail || "Encoder request failed");
+    const detail =
+      typeof data?.detail === "string"
+        ? data.detail
+        : Array.isArray(data?.detail)
+          ? JSON.stringify(data.detail)
+          : "Encoder request failed";
+
+    throw new Error(detail);
   }
 
   return data;

@@ -31,17 +31,7 @@ export default function BerResultsTable({ result }) {
   const rows = flattenRows(result);
 
   return (
-    <div
-      style={{
-        border: "1px solid #d9d9d9",
-        borderRadius: 18,
-        background: "#fff",
-        padding: 18,
-        overflowX: "auto",
-      }}
-    >
-      <h2 style={{ marginTop: 0, marginBottom: 18, fontSize: 26 }}>Tabuľka výsledkov</h2>
-
+    <div style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>

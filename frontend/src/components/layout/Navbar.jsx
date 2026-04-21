@@ -11,12 +11,13 @@ function NavLink({ to, children }) {
       to={to}
       style={{
         textDecoration: "none",
-        padding: "10px 14px",
-        borderRadius: 10,
-        fontWeight: 700,
-        color: isActive ? "#111" : "#444",
+        padding: "14px 20px",
+        borderRadius: 16,
+        fontWeight: 800,
+        fontSize: 18,
+        color: isActive ? "#111" : "#333",
         background: isActive ? "#e8f5e9" : "transparent",
-        border: isActive ? "1px solid #a5d6a7" : "1px solid transparent",
+        border: isActive ? "2px solid #a5d6a7" : "2px solid transparent",
       }}
     >
       {children}
@@ -30,7 +31,7 @@ export default function Navbar() {
       style={{
         position: "sticky",
         top: 0,
-        zIndex: 10,
+        zIndex: 20,
         background: "#ffffffee",
         backdropFilter: "blur(8px)",
         borderBottom: "1px solid #ddd",
@@ -38,18 +39,18 @@ export default function Navbar() {
     >
       <div
         style={{
-          maxWidth: 1160,
+          maxWidth: 1600,
           margin: "0 auto",
-          padding: "14px 24px",
+          padding: "18px 28px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: 16,
+          gap: 20,
         }}
       >
-        <div style={{ fontWeight: 800, fontSize: 20 }}>Polar Lab</div>
+        <div style={{ fontWeight: 800, fontSize: 26 }}>Polar Lab</div>
 
-        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
           <NavLink to="/mask">Mask</NavLink>
           <NavLink to="/encoder">Encoder</NavLink>
           <NavLink to="/decoder">Decoder</NavLink>

@@ -1,48 +1,71 @@
 import React from "react";
+import SectionTitle from "../common/SectionTitle.jsx";
 
-export default function MaskGrid({ mask }) {
-  if (!mask || mask.length === 0) return null;
+export default function MaskGrid({ result }) {
+  if (!result) return null;
+
+  const mask = result.mask || [];
 
   return (
-    <div
-      style={{
-        border: "1px solid #d0d0d0",
-        padding: 16,
-        borderRadius: 16,
-        background: "#fff",
-      }}
-    >
-      <h3 style={{ marginTop: 0 }}>Mask visualization</h3>
+    <div>
+      <SectionTitle>Vizualizácia masky</SectionTitle>
 
       <div
         style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(64px, 1fr))",
-          gap: 10,
+          border: "1px solid #e5e7eb",
+          borderRadius: 18,
+          background: "#fff",
+          padding: 10,
+          overflowX: "auto",
         }}
       >
-        {mask.map((bit, index) => {
-          const isInfo = bit === 1;
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${mask.length}, minmax(72px, 1fr))`,
+            minWidth: Math.max(720, mask.length * 78),
+          }}
+        >
+          {mask.map((value, index) => {
+            const isInfo = value === 1;
 
-          return (
-            <div
-              key={index}
-              style={{
-                borderRadius: 12,
-                padding: 10,
-                textAlign: "center",
-                border: "1px solid #ddd",
-                background: isInfo ? "#e8f5e9" : "#e3f2fd",
-              }}
-            >
-              <div style={{ fontSize: 12, color: "#555" }}>pos {index}</div>
-              <div style={{ fontSize: 20, fontWeight: 700 }}>{bit}</div>
-              <div style={{ fontSize: 12, fontWeight: 700 }}>
-                {isInfo ? "info" : "frozen"}
+            return (
+              <div key={index}>
+                <div
+                  style={{
+                    height: 140,
+                    background: isInfo ? "#eadf29" : "#4b006e",
+                    borderRight: "1px solid rgba(255,255,255,0.15)",
+                    borderBottom: "1px solid #d1d5db",
+                  }}
+                />
+                <div
+                  style={{
+                    textAlign: "center",
+                    paddingTop: 10,
+                    paddingBottom: 8,
+                    color: "#374151",
+                    fontSize: 15,
+                  }}
+                >
+                  {index}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+      </div>
+
+      <div
+        style={{
+          marginTop: 18,
+          color: "#64748b",
+          fontSize: 17,
+          lineHeight: 1.7,
+        }}
+      >
+        Hodnota 1 predstavuje informačný bit, hodnota 0 predstavuje frozen bit.
+        Takto je možné vizuálne sledovať rozloženie spoľahlivých a nespoľahlivých podkanálov.
       </div>
     </div>
   );

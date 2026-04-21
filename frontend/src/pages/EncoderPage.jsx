@@ -1,65 +1,128 @@
-import React from "react";
-import PageContainer from "../components/layout/PageContainer.jsx";
-import EncoderForm from "../components/encoder/EncoderForm.jsx";
+import React, { useCallback, useMemo, useState } from "react";
+import AppShell from "../components/layout/AppShell.jsx";
+import PageTitle from "../components/common/PageTitle.jsx";
+import EncoderSidebarControls from "../components/encoder/EncoderSidebarControls.jsx";
+import EncoderSummary from "../components/encoder/EncoderSummary.jsx";
 import EncoderStagesTable from "../components/encoder/EncoderStagesTable.jsx";
+import ButterflyDiagram from "../components/encoder/ButterflyDiagram.jsx";
+import EncodingExplanation from "../components/encoder/EncodingExplanation.jsx";
+import InfoBox from "../components/common/InfoBox.jsx";
 import { useEncoder } from "../hooks/useEncoder.js";
 
 export default function EncoderPage() {
   const { result, loading, error, encode } = useEncoder();
+  const [visibleStage, setVisibleStage] = useState(0);
+
+  const handleSubmit = useCallback(
+    (payload) => {
+      encode(payload);
+    },
+    [encode]
+  );
+
+  const maxStage = useMemo(() => {
+    if (!result?.stages?.length) return 0;
+    return result.stages.length - 1;
+  }, [result]);
+
+  React.useEffect(() => {
+    setVisibleStage(maxStage);
+  }, [maxStage]);
 
   return (
-    <PageContainer>
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: 24 }}>
-        <h1 style={{ marginBottom: 8 }}>Polar Encoder</h1>
-        <p style={{ marginTop: 0, marginBottom: 24, color: "#444" }}>
-          Build the u-vector, encode information bits, and inspect stage-by-stage transformation.
-        </p>
+    <AppShell
+      sidebarControls={
+        <EncoderSidebarControls
+          loading={loading}
+          onSubmit={handleSubmit}
+        />
+      }
+    >
+      <PageTitle
+        title="Encoder – krok za krokom"
+        description="Táto časť ukazuje, ako sa informačné bity vložia do u-vektora a ako sa následne cez polárnu transformáciu vytvorí výsledné kódové slovo."
+      />
 
-        <EncoderForm onSubmit={encode} loading={loading} />
+      {error && (
+        <div
+          style={{
+            marginBottom: 24,
+            padding: "16px 20px",
+            borderRadius: 18,
+            background: "#fdecea",
+            border: "1px solid #f0b6b1",
+            color: "#b42318",
+            fontSize: 16,
+          }}
+        >
+          {error}
+        </div>
+      )}
 
-        {error && (
-          <div
-            style={{
-              marginTop: 16,
-              padding: 12,
-              border: "1px solid #e57373",
-              background: "#fdecea",
-              color: "#b71c1c",
-              borderRadius: 12,
-            }}
-          >
-            {error}
-          </div>
-        )}
+      {result && (
+        <div style={{ display: "grid", gap: 34 }}>
+          <EncoderSummary result={result} />
 
-        {result && (
-          <div style={{ marginTop: 24, display: "grid", gap: 24 }}>
+          <hr style={dividerStyle} />
+
+          <div>
             <div
               style={{
-                border: "1px solid #d0d0d0",
-                padding: 16,
-                borderRadius: 16,
-                background: "#fff",
+                fontSize: 18,
+                fontWeight: 700,
+                color: "#374151",
+                marginBottom: 12,
               }}
             >
-              <h3 style={{ marginTop: 0 }}>Summary</h3>
-              <div>N: {result.N}</div>
-              <div>K: {result.K}</div>
-              <div>Design Eb/N0: {result.design_ebn0_db}</div>
-              <div style={{ marginTop: 12 }}>Mask: [{result.mask.join(", ")}]</div>
-              <div style={{ marginTop: 8 }}>Info positions: [{result.info_positions.join(", ")}]</div>
-              <div style={{ marginTop: 8 }}>Frozen positions: [{result.frozen_positions.join(", ")}]</div>
-              <div style={{ marginTop: 8 }}>u-vector: [{result.u_vector.join(", ")}]</div>
-              <div style={{ marginTop: 8, fontWeight: 700 }}>
-                codeword: [{result.codeword.join(", ")}]
-              </div>
-              <div style={{ marginTop: 12, color: "#444" }}>{result.explanation}</div>
+              Zobraziť do stage
             </div>
 
-            <EncoderStagesTable stages={result.stages} />
+            <input
+              type="range"
+              min="0"
+              max={maxStage}
+              step="1"
+              value={visibleStage}
+              onChange={(e) => setVisibleStage(Number(e.target.value))}
+              style={{ width: "100%" }}
+            />
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginTop: 8,
+                color: "#6b7280",
+                fontSize: 14,
+              }}
+            >
+              <span>0</span>
+              <span>{visibleStage}</span>
+              <span>{maxStage}</span>
+            </div>
           </div>
-        )}
-      </div>
-    </PageContainer>
+
+          <InfoBox>
+            OK: posledný stage sa zhoduje s kódovým slovom c.
+          </InfoBox>
+
+          <ButterflyDiagram result={result} visibleStage={visibleStage} />
+
+          <hr style={dividerStyle} />
+
+          <EncoderStagesTable result={result} />
+
+          <hr style={dividerStyle} />
+
+          <EncodingExplanation result={result} />
+        </div>
+      )}
+    </AppShell>
   );
 }
+
+const dividerStyle = {
+  border: "none",
+  borderTop: "1px solid #d7dde5",
+  margin: 0,
+};

@@ -47,6 +47,7 @@ function formatYAxis(value) {
 
   return "";
 }
+
 function formatTooltipValue(value) {
   if (value === null || value === undefined) {
     return "not enough errors";
@@ -62,14 +63,11 @@ export default function BerChart({ result }) {
   const data = buildChartData(result);
 
   return (
-    <div
-      style={{
-        border: "1px solid #d9d9d9",
-        borderRadius: 18,
-        background: "#fff",
-        padding: 18,
-      }}
-    >
+    <>
+      <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 26 }}>
+        BER polárnych kódov pri SC dekódovaní
+      </h2>
+
       <div style={{ width: "100%", height: 520 }}>
         <ResponsiveContainer>
           <LineChart
@@ -124,6 +122,6 @@ export default function BerChart({ result }) {
           </LineChart>
         </ResponsiveContainer>
       </div>
-    </div>
+    </>
   );
 }
