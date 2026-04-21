@@ -1,8 +1,24 @@
-import { apiRequest } from "./client";
-
 export async function runDecoder(payload) {
-  return apiRequest("/api/decoder/sc-run", {
+  const response = await fetch("http://127.0.0.1:8000/api/decoder/sc-run", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify(payload),
   });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    const detail =
+      typeof data?.detail === "string"
+        ? data.detail
+        : Array.isArray(data?.detail)
+          ? JSON.stringify(data.detail)
+          : "Decoder request failed";
+
+    throw new Error(detail);
+  }
+
+  return data;
 }

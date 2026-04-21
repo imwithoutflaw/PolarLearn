@@ -1,4 +1,4 @@
-export async function compareBer(payload) {
+export async function runBerSimulation(payload) {
   const response = await fetch("http://127.0.0.1:8000/api/ber/compare", {
     method: "POST",
     headers: {
@@ -14,8 +14,8 @@ export async function compareBer(payload) {
       typeof data?.detail === "string"
         ? data.detail
         : Array.isArray(data?.detail)
-          ? JSON.stringify(data.detail)
-          : "BER comparison request failed";
+        ? JSON.stringify(data.detail)
+        : "BER comparison request failed";
 
     throw new Error(detail);
   }

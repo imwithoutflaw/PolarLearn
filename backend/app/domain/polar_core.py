@@ -99,6 +99,7 @@ def _sc_decode_recursive(
     mask: list[int],
     offset: int,
     trace: list[dict],
+    decisions: list[int],
 ) -> list[int]:
     n = len(llr)
 
@@ -120,6 +121,7 @@ def _sc_decode_recursive(
                     "combined_bits": [0],
                 }
             )
+            decisions[bit_index] = 0
             return [0]
 
         decision = 0 if llr[0] >= 0 else 1
@@ -137,15 +139,16 @@ def _sc_decode_recursive(
                 "combined_bits": [decision],
             }
         )
+        decisions[bit_index] = decision
         return [decision]
 
     half = n // 2
 
     left_llr = [_f_func(llr[i], llr[i + half]) for i in range(half)]
-    u_left = _sc_decode_recursive(left_llr, mask, offset, trace)
+    u_left = _sc_decode_recursive(left_llr, mask, offset, trace, decisions)
 
     right_llr = [_g_func(llr[i], llr[i + half], u_left[i]) for i in range(half)]
-    u_right = _sc_decode_recursive(right_llr, mask, offset + half, trace)
+    u_right = _sc_decode_recursive(right_llr, mask, offset + half, trace, decisions)
 
     u = [0] * n
     for i in range(half):
@@ -181,9 +184,10 @@ def sc_decode(
     validate_mask(mask, N)
 
     trace: list[dict] = []
-    u_hat = _sc_decode_recursive(llr=llr, mask=mask, offset=0, trace=trace)
+    decisions = [0] * N
+    _sc_decode_recursive(llr=llr, mask=mask, offset=0, trace=trace, decisions=decisions)
 
-    estimated_bits = [u_hat[i] for i in range(N) if mask[i] == 1]
+    estimated_bits = [decisions[i] for i in range(N) if mask[i] == 1]
 
     if return_trace:
         return estimated_bits, trace

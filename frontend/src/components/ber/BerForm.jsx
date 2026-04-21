@@ -1,63 +1,66 @@
 import React, { useMemo, useState } from "react";
+import ControlGroup from "../common/ControlGroup.jsx";
 
-const AVAILABLE_N = [8, 16, 32, 64, 128];
-const AVAILABLE_R = [0.25, 0.5, 0.75];
+const N_OPTIONS = [8, 16, 32, 64, 128];
+const R_OPTIONS = [0.25, 0.5, 0.75];
 
-function buildEbn0Range(start, stop, step) {
-  const values = [];
-  const epsilon = 1e-9;
+function buildEbn0Points(start, stop, step) {
+  const points = [];
+  let current = Number(start);
 
-  for (let x = start; x <= stop + epsilon; x += step) {
-    values.push(Number(x.toFixed(6)));
+  while (current <= Number(stop) + 1e-9) {
+    points.push(Number(current.toFixed(6)));
+    current += Number(step);
   }
 
-  return values;
-}
-
-function toggleValue(list, value) {
-  if (list.includes(value)) {
-    return list.filter((item) => item !== value);
-  }
-  return [...list, value].sort((a, b) => a - b);
+  return points;
 }
 
 export default function BerForm({ onSubmit, loading }) {
-  const [NList, setNList] = useState([8, 16, 32]);
+  const [selectedN, setSelectedN] = useState([8, 16, 32]);
   const [R, setR] = useState(0.5);
-  const [ebStart, setEbStart] = useState(0.0);
-  const [ebStop, setEbStop] = useState(6.0);
-  const [ebStep, setEbStep] = useState(0.5);
-  const [bitsTarget, setBitsTarget] = useState(100000);
-  const [minErrPlot, setMinErrPlot] = useState(30);
   const [designEbN0, setDesignEbN0] = useState(2.0);
+  const [ebn0Start, setEbn0Start] = useState(0);
+  const [ebn0Stop, setEbn0Stop] = useState(6);
+  const [ebn0Step, setEbn0Step] = useState(0.5);
+  const [bitsTarget, setBitsTarget] = useState(1000);
+  const [minErrPlot, setMinErrPlot] = useState(30);
 
-  const previewCodes = useMemo(() => {
-    return NList.map((N) => {
-      let K = Math.round(R * N);
+  const codesPreview = useMemo(() => {
+    return selectedN.map((N) => {
+      let K = Math.round(N * R);
       K = Math.max(1, Math.min(K, N - 1));
-      return { N, K, rate: K / N };
+      return {
+        N,
+        K,
+        R: (K / N).toFixed(2),
+      };
     });
-  }, [NList, R]);
+  }, [selectedN, R]);
+
+  const toggleN = (value) => {
+    setSelectedN((prev) => {
+      if (prev.includes(value)) {
+        return prev.filter((item) => item !== value);
+      }
+      return [...prev, value].sort((a, b) => a - b);
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (NList.length === 0) {
-      onSubmit(null);
-      return;
-    }
+    if (!selectedN.length) return;
+    if (Number(ebn0Stop) <= Number(ebn0Start)) return;
+    if (Number(ebn0Step) <= 0) return;
 
-    const codes = NList.map((N) => {
-      let K = Math.round(R * N);
+    const codes = selectedN.map((N) => {
+      let K = Math.round(N * R);
       K = Math.max(1, Math.min(K, N - 1));
       return { N, K };
     });
 
-    const ebn0_points_db = buildEbn0Range(
-      Number(ebStart),
-      Number(ebStop),
-      Number(ebStep)
-    );
+    const ebn0_points_db = buildEbn0Points(ebn0Start, ebn0Stop, ebn0Step);
 
     onSubmit({
       codes,
@@ -70,38 +73,23 @@ export default function BerForm({ onSubmit, loading }) {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Vyber dĺžky kódu N
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            gap: 10,
-            flexWrap: "wrap",
-            padding: 14,
-            borderRadius: 14,
-            background: "#fff",
-            border: "1px solid #d8d8d8",
-          }}
-        >
-          {AVAILABLE_N.map((value) => {
-            const selected = NList.includes(value);
+      <ControlGroup title="Vyber dĺžky kódu N">
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+          {N_OPTIONS.map((value) => {
+            const active = selectedN.includes(value);
 
             return (
               <button
                 key={value}
                 type="button"
-                onClick={() => setNList((prev) => toggleValue(prev, value))}
+                onClick={() => toggleN(value)}
                 style={{
-                  border: selected ? "1px solid #ef5350" : "1px solid #ccc",
-                  background: selected ? "#ff5a52" : "#f7f7f7",
-                  color: selected ? "#fff" : "#222",
-                  borderRadius: 10,
-                  padding: "10px 14px",
-                  fontWeight: 700,
-                  cursor: "pointer",
+                  ...chipStyle,
+                  background: active ? "#ef6b5b" : "#ffffff",
+                  color: active ? "#ffffff" : "#374151",
+                  border: active
+                    ? "1px solid #ef6b5b"
+                    : "1px solid #d8dee8",
                 }}
               >
                 {value}
@@ -109,186 +97,141 @@ export default function BerForm({ onSubmit, loading }) {
             );
           })}
         </div>
-      </div>
+      </ControlGroup>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Kódový pomer R
-        </div>
-
+      <ControlGroup title="Kódový pomer R">
         <select
           value={R}
           onChange={(e) => setR(Number(e.target.value))}
-          style={{
-            width: "100%",
-            padding: "14px 16px",
-            borderRadius: 14,
-            border: "1px solid #d8d8d8",
-            background: "#fff",
-            fontSize: 16,
-          }}
+          style={inputStyle}
         >
-          {AVAILABLE_R.map((value) => (
+          {R_OPTIONS.map((value) => (
             <option key={value} value={value}>
               {value}
             </option>
           ))}
         </select>
-      </div>
+      </ControlGroup>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Design Eb/N0 (dB)
-        </div>
-
+      <ControlGroup title="Design Eb/N0 (dB)">
         <input
           type="number"
-          step="0.1"
           value={designEbN0}
-          onChange={(e) => setDesignEbN0(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "14px 16px",
-            borderRadius: 14,
-            border: "1px solid #d8d8d8",
-            background: "#fff",
-            fontSize: 16,
-          }}
-        />
-      </div>
-
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Eb/N0 od (dB)
-        </div>
-        <input
-          type="number"
           step="0.5"
-          value={ebStart}
-          onChange={(e) => setEbStart(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "14px 16px",
-            borderRadius: 14,
-            border: "1px solid #d8d8d8",
-            background: "#fff",
-            fontSize: 16,
-          }}
+          onChange={(e) => setDesignEbN0(Number(e.target.value))}
+          style={inputStyle}
         />
-      </div>
+      </ControlGroup>
 
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Eb/N0 do (dB)
-        </div>
+      <ControlGroup title="Eb/N0 od (dB)">
         <input
           type="number"
+          value={ebn0Start}
           step="0.5"
-          value={ebStop}
-          onChange={(e) => setEbStop(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "14px 16px",
-            borderRadius: 14,
-            border: "1px solid #d8d8d8",
-            background: "#fff",
-            fontSize: 16,
-          }}
+          onChange={(e) => setEbn0Start(Number(e.target.value))}
+          style={inputStyle}
         />
-      </div>
+      </ControlGroup>
 
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Krok Eb/N0
-        </div>
+      <ControlGroup title="Eb/N0 do (dB)">
         <input
           type="number"
-          step="0.25"
-          value={ebStep}
-          onChange={(e) => setEbStep(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "14px 16px",
-            borderRadius: 14,
-            border: "1px solid #d8d8d8",
-            background: "#fff",
-            fontSize: 16,
-          }}
+          value={ebn0Stop}
+          step="0.5"
+          onChange={(e) => setEbn0Stop(Number(e.target.value))}
+          style={inputStyle}
         />
-      </div>
+      </ControlGroup>
 
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Počet prenesených bitov
-        </div>
+      <ControlGroup title="Krok Eb/N0">
+        <input
+          type="number"
+          value={ebn0Step}
+          step="0.5"
+          onChange={(e) => setEbn0Step(Number(e.target.value))}
+          style={inputStyle}
+        />
+      </ControlGroup>
+
+      <ControlGroup title="Počet prenesených bitov">
         <input
           type="number"
           value={bitsTarget}
-          onChange={(e) => setBitsTarget(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "14px 16px",
-            borderRadius: 14,
-            border: "1px solid #d8d8d8",
-            background: "#fff",
-            fontSize: 16,
-          }}
+          step="1000"
+          min="1000"
+          onChange={(e) => setBitsTarget(Number(e.target.value))}
+          style={inputStyle}
         />
-      </div>
+      </ControlGroup>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>
-          Min. počet chýb pre vykreslenie bodu
-        </div>
+      <ControlGroup title="Min. počet chýb pre vykreslenie bodu">
         <input
           type="number"
           value={minErrPlot}
-          onChange={(e) => setMinErrPlot(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "14px 16px",
-            borderRadius: 14,
-            border: "1px solid #d8d8d8",
-            background: "#fff",
-            fontSize: 16,
-          }}
+          step="1"
+          min="1"
+          onChange={(e) => setMinErrPlot(Number(e.target.value))}
+          style={inputStyle}
         />
-      </div>
+      </ControlGroup>
 
       <button
         type="submit"
-        disabled={loading || NList.length === 0}
+        disabled={loading || selectedN.length === 0}
         style={{
-          width: "100%",
+          marginTop: 8,
           padding: "14px 18px",
-          borderRadius: 14,
-          border: "1px solid #111",
-          background: loading ? "#444" : "#111",
-          color: "#fff",
+          borderRadius: 16,
+          border: "1px solid #d8dee8",
+          background: loading ? "#e5e7eb" : "#ffffff",
+          color: "#374151",
           fontSize: 16,
           fontWeight: 700,
-          cursor: loading ? "default" : "pointer",
+          cursor: loading ? "not-allowed" : "pointer",
         }}
       >
-        {loading ? "Prebieha simulácia..." : "Spustiť simuláciu"}
+        {loading ? "Simulácia prebieha..." : "Spustiť simuláciu"}
       </button>
 
       <div
         style={{
-          marginTop: 20,
-          padding: 14,
-          borderRadius: 14,
-          background: "#fff",
-          border: "1px solid #e1e1e1",
+          marginTop: 18,
+          padding: "14px 16px",
+          borderRadius: 16,
+          background: "#f8fafc",
+          border: "1px solid #d8dee8",
+          color: "#374151",
+          lineHeight: 1.8,
+          fontSize: 15,
         }}
       >
-        <div style={{ fontWeight: 700, marginBottom: 8 }}>Preview konfigurácií</div>
-        {previewCodes.map((item) => (
+        <div style={{ fontWeight: 700, marginBottom: 8 }}>
+          Preview konfigurácií
+        </div>
+
+        {codesPreview.map((item) => (
           <div key={item.N}>
-            N={item.N}, K={item.K}, R≈{item.rate.toFixed(2)}
+            N={item.N}, K={item.K}, R≈{item.R}
           </div>
         ))}
       </div>
     </form>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  padding: "14px 16px",
+  borderRadius: 16,
+  border: "1px solid #d8dee8",
+  background: "#fff",
+  fontSize: 16,
+};
+
+const chipStyle = {
+  padding: "10px 16px",
+  borderRadius: 14,
+  fontSize: 15,
+  fontWeight: 700,
+  cursor: "pointer",
+};

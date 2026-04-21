@@ -81,7 +81,7 @@ export default function BerChart({ result }) {
               type="number"
               domain={["dataMin", "dataMax"]}
               tickCount={7}
-              label={{ value: "Eb/N0 (dB)", position: "insideBottom", offset: -8 }}
+              label={{ value: "Eb/N0 (dB)", position: "insideBottom", offset: -10 }}
             />
 
             <YAxis
@@ -93,7 +93,13 @@ export default function BerChart({ result }) {
             />
 
             <Tooltip formatter={formatTooltipValue} />
-            <Legend />
+            <Legend
+               verticalAlign="bottom"
+               align="center"
+               wrapperStyle={{
+                 paddingTop: 25, // 👈 головне — відступ зверху
+                  }}
+            />
 
             {result.series.map((seriesItem, index) => (
               <Line

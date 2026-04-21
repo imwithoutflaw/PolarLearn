@@ -1,6 +1,6 @@
 import React from "react";
 import AppShell from "../components/layout/AppShell.jsx";
-import PageHeader from "../components/layout/PageHeader.jsx";
+import PageTitle from "../components/common/PageTitle.jsx";
 import SidebarSection from "../components/layout/SidebarSection.jsx";
 import SectionCard from "../components/common/SectionCard.jsx";
 import BerForm from "../components/ber/BerForm.jsx";
@@ -17,44 +17,17 @@ export default function BerPage() {
     runComparison(payload);
   };
 
-  const sidebar = (
-    <>
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 22 }}>Polar Lab</div>
-
-        <div style={{ display: "grid", gap: 12, color: "#555", fontSize: 15 }}>
-          <div>Konštrukcia masky</div>
-          <div>Encoder</div>
-          <div>Decoder SC</div>
-          <div
-            style={{
-              fontWeight: 800,
-              background: "#e8f5e9",
-              border: "2px solid #a5d6a7",
-              borderRadius: 16,
-              padding: "14px 16px",
-              color: "#111",
-            }}
-          >
-            BER simulacia
-          </div>
-          <div>Channel polarization</div>
-        </div>
-      </div>
-
-      <hr style={{ border: "none", borderTop: "1px solid #ddd", margin: "26px 0" }} />
-
-      <SidebarSection title="Parametre simulácie">
-        <BerForm onSubmit={handleSubmit} loading={loading} />
-      </SidebarSection>
-    </>
+  const sidebarControls = (
+    <SidebarSection title="Parametre simulácie">
+      <BerForm onSubmit={handleSubmit} loading={loading} />
+    </SidebarSection>
   );
 
   return (
-    <AppShell sidebar={sidebar}>
-      <PageHeader
-        title="Výsledky simulácie"
-        subtitle="Porovnanie BER polárnych kódov pri SC dekódovaní s teoretickou krivkou nekódovaného BPSK prenosu."
+    <AppShell sidebarControls={sidebarControls}>
+      <PageTitle
+        title="BER simulácia polárnych kódov"
+        description="Táto časť umožňuje simulovať bitovú chybovosť (BER) polárnych kódov pri SC dekódovaní na AWGN kanáli a porovnať výsledok s teoretickou BER nekódovaného BPSK prenosu."
       />
 
       {loading && (
@@ -62,7 +35,7 @@ export default function BerPage() {
           <div
             style={{
               width: "100%",
-              height: 14,
+              height: 10,
               borderRadius: 999,
               background: "#dbeafe",
               overflow: "hidden",
@@ -73,11 +46,14 @@ export default function BerPage() {
               style={{
                 width: "100%",
                 height: "100%",
-                background: "#1976d2",
+                background: "#3b82f6",
               }}
             />
           </div>
-          <div style={{ fontSize: 18, color: "#444" }}>Simulácia prebieha...</div>
+
+          <div style={{ fontSize: 18, color: "#444" }}>
+            Simulácia prebieha...
+          </div>
         </div>
       )}
 

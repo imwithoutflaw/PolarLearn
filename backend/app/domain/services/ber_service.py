@@ -52,7 +52,7 @@ def _simulate_single_code(
         bit_errors = 0
         total_bits = 0
 
-        while total_bits < bits_target and bit_errors < min_err_plot:
+        while total_bits < bits_target:
             info_bits = [random.randint(0, 1) for _ in range(K)]
             validate_info_bits(info_bits, K)
 
@@ -76,9 +76,7 @@ def _simulate_single_code(
             total_bits += K
 
         ber_value = None
-        if bit_errors >= min_err_plot and total_bits > 0:
-            ber_value = bit_errors / total_bits
-        elif total_bits >= bits_target and bit_errors > 0:
+        if total_bits > 0 and bit_errors >= min_err_plot:
             ber_value = bit_errors / total_bits
 
         results.append(
@@ -118,7 +116,7 @@ def build_ber_response(
         explanation=(
             "BER simulation was performed using random information bits, polar encoding, "
             "BPSK modulation, AWGN channel, LLR computation, and baseline SC decoding. "
-            "Each point was simulated until bits_target was reached or enough errors were collected."
+            "Each point was simulated until bits_target was reached; points with fewer than min_err_plot errors are returned as null BER values."
         ),
     )
 
