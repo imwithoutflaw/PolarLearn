@@ -56,3 +56,8 @@ def validate_ebn0_points(points: list[float]) -> None:
 def validate_frames(frames: int) -> None:
     if frames <= 0:
         raise ValidationError("frames must be greater than 0.")
+
+
+def validate_code_list(codes: list[object]) -> None:
+    if len(codes) == 0:
+        raise ValidationError("codes must not be empty.")

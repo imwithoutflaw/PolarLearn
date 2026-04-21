@@ -21,3 +21,25 @@ def test_decoder_endpoint_success():
     assert len(data["estimated_bits"]) == 4
     assert len(data["steps"]) > 0
     assert "step_type" in data["steps"][0]
+
+    def test_ber_compare_endpoint_success():
+        response = client.post(
+            "/api/ber/compare",
+            json={
+                "codes": [
+                    {"N": 8, "K": 4},
+                    {"N": 16, "K": 8}
+                ],
+                "design_ebn0_db": 2.0,
+                "ebn0_points_db": [0.0, 1.0],
+                "frames": 2
+            },
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+
+        assert "series" in data
+        assert "theoretical_uncoded_bpsk" in data
+        assert len(data["series"]) == 2
+        assert len(data["theoretical_uncoded_bpsk"]) == 2

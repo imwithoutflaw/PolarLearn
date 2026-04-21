@@ -18,3 +18,8 @@ def compute_sigma_from_ebn0(ebn0_db: float, rate: float) -> float:
 def compute_llr_from_received(received: list[float], sigma: float) -> list[float]:
     variance = sigma * sigma
     return [2.0 * y / variance for y in received]
+
+
+def theoretical_uncoded_bpsk_ber(ebn0_db: float) -> float:
+    ebn0_linear = 10 ** (ebn0_db / 10.0)
+    return 0.5 * math.erfc(math.sqrt(ebn0_linear))
