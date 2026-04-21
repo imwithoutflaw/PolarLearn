@@ -10,7 +10,7 @@ export default function DecoderPage() {
   return (
     <div style={{ maxWidth: 960, margin: "0 auto", padding: 24 }}>
       <h1 style={{ marginBottom: 8 }}>SC Decoder</h1>
-      <p style={{ marginTop: 0, marginBottom: 24 }}>
+      <p style={{ marginTop: 0, marginBottom: 24, color: "#444" }}>
         Run baseline successive cancellation decoding and inspect each decision step.
       </p>
 
@@ -24,6 +24,7 @@ export default function DecoderPage() {
             border: "1px solid #e57373",
             background: "#fdecea",
             color: "#b71c1c",
+            borderRadius: 12,
           }}
         >
           {error}
