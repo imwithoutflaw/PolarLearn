@@ -1,48 +1,43 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { navItems } from "../../config/navItems.js";
 
 export default function SidebarNav() {
-  const location = useLocation();
-
   return (
-    <div>
+    <nav>
       <div
         style={{
-          fontSize: 28,
-          fontWeight: 800,
-          marginBottom: 28,
-          color: "#111827",
+          fontSize: 12,
+          letterSpacing: 1,
+          textTransform: "uppercase",
+          color: "#64748b",
+          marginBottom: 10,
+          fontWeight: 700,
         }}
       >
-        app
+        Moduly
       </div>
 
       <div style={{ display: "grid", gap: 8 }}>
-        {navItems.map((item) => {
-          const isActive =
-            location.pathname === item.path ||
-            (item.path === "/mask" && location.pathname === "/");
-
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              style={{
-                textDecoration: "none",
-                padding: "12px 14px",
-                borderRadius: 14,
-                fontSize: 16,
-                fontWeight: isActive ? 700 : 500,
-                color: "#374151",
-                background: isActive ? "#dbe3f1" : "transparent",
-              }}
-            >
-              {item.label}
-            </Link>
-          );
-        })}
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            style={({ isActive }) => ({
+              textDecoration: "none",
+              borderRadius: 12,
+              border: `1px solid ${isActive ? "#bcd2f0" : "transparent"}`,
+              background: isActive ? "#e8f0fb" : "transparent",
+              padding: "11px 12px",
+              color: "#1f2937",
+              fontWeight: isActive ? 700 : 600,
+              fontSize: 15,
+            })}
+          >
+            {item.label}
+          </NavLink>
+        ))}
       </div>
-    </div>
+    </nav>
   );
 }

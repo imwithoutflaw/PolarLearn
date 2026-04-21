@@ -68,7 +68,7 @@ export default function BerChart({ result }) {
         BER polárnych kódov pri SC dekódovaní
       </h2>
 
-      <div style={{ width: "100%", height: 520 }}>
+      <div style={{ width: "100%", height: 720 }}>
         <ResponsiveContainer>
           <LineChart
             data={data}
