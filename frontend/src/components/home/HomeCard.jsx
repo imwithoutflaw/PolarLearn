@@ -7,37 +7,67 @@ export default function HomeCard({ title, description, to }) {
       to={to}
       style={{
         textDecoration: "none",
-        color: "#1e293b",
-        background: "#ffffff",
-        border: "1px solid #d6e1f0",
-        borderRadius: 18,
-        padding: "24px 22px",
-        minHeight: 150,
-        display: "flex",
-        flexDirection: "column",
-        gap: 12,
-        justifyContent: "center",
-        boxShadow: "0 8px 24px rgba(15, 23, 42, 0.06)",
-        transition:
-          "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease",
-        cursor: "pointer",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = "translateY(-5px)";
-        e.currentTarget.style.boxShadow = "0 16px 30px rgba(18, 58, 120, 0.16)";
-        e.currentTarget.style.borderColor = "#b6cbeb";
-        e.currentTarget.style.backgroundColor = "#fdfefe";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = "translateY(0px)";
-        e.currentTarget.style.boxShadow = "0 8px 24px rgba(15, 23, 42, 0.06)";
-        e.currentTarget.style.borderColor = "#d6e1f0";
-        e.currentTarget.style.backgroundColor = "#ffffff";
+        color: "inherit",
       }}
     >
-      <div style={{ fontSize: 24, fontWeight: 800 }}>{title}</div>
-      <div style={{ fontSize: 14, color: "#475569", lineHeight: 1.5 }}>
-        {description}
+      <div
+        style={{
+          minHeight: 170,
+          padding: "22px 20px",
+          borderRadius: 22,
+          background: "#ffffff",
+          border: "1px solid #d9e3f1",
+          boxShadow: "0 10px 24px rgba(15, 23, 42, 0.06)",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          transition: "transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease",
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = "translateY(-4px)";
+          e.currentTarget.style.boxShadow = "0 18px 32px rgba(15, 23, 42, 0.10)";
+          e.currentTarget.style.borderColor = "#bcd0ec";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = "translateY(0)";
+          e.currentTarget.style.boxShadow = "0 10px 24px rgba(15, 23, 42, 0.06)";
+          e.currentTarget.style.borderColor = "#d9e3f1";
+        }}
+      >
+        <div>
+          <h3
+            style={{
+              margin: 0,
+              fontSize: 22,
+              fontWeight: 800,
+              color: "#0f172a",
+            }}
+          >
+            {title}
+          </h3>
+
+          <p
+            style={{
+              margin: "12px 0 0",
+              fontSize: 15,
+              lineHeight: 1.6,
+              color: "#64748b",
+            }}
+          >
+            {description}
+          </p>
+        </div>
+
+        <div
+          style={{
+            marginTop: 20,
+            fontSize: 14,
+            fontWeight: 800,
+            color: "#1d4ed8",
+          }}
+        >
+          Open module →
+        </div>
       </div>
     </Link>
   );

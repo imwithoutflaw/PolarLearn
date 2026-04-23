@@ -175,6 +175,8 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
 
 const inputStyle = {
   width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   padding: "14px 16px",
   borderRadius: 16,
   border: "1px solid #d8dee8",
@@ -184,6 +186,8 @@ const inputStyle = {
 
 const textareaStyle = {
   width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   padding: "14px 16px",
   borderRadius: 16,
   border: "1px solid #d8dee8",
@@ -212,6 +216,8 @@ const radioRowStyle = {
 const buttonStyle = {
   marginTop: 6,
   width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   padding: "14px 18px",
   borderRadius: 16,
   border: "none",

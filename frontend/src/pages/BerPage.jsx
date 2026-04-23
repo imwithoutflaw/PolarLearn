@@ -3,7 +3,7 @@ import AppShell from "../components/layout/AppShell.jsx";
 import PageTitle from "../components/common/PageTitle.jsx";
 import SidebarSection from "../components/layout/SidebarSection.jsx";
 import SectionCard from "../components/common/SectionCard.jsx";
-import BerForm from "../components/ber/BerForm.jsx";
+import BerSidebarControls from "../components/ber/BerSidebarControls.jsx";
 import BerChart from "../components/ber/BerChart.jsx";
 import BerInterpretation from "../components/ber/BerInterpretation.jsx";
 import BerResultsTable from "../components/ber/BerResultsTable.jsx";
@@ -19,7 +19,7 @@ export default function BerPage() {
 
   const sidebarControls = (
     <SidebarSection title="Parametre simulácie">
-      <BerForm onSubmit={handleSubmit} loading={loading} />
+      <BerSidebarControls onSubmit={handleSubmit} loading={loading} />
     </SidebarSection>
   );
 

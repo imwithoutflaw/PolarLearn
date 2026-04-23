@@ -51,7 +51,7 @@ export default function EncoderSidebarControls({ onSubmit, loading }) {
   }, []);
 
   return (
-    <div>
+    <div style={{ width: "100%", overflow: "hidden" }}>
       <SidebarPanelTitle>Parametre kódu</SidebarPanelTitle>
 
       <ControlGroup title="Dĺžka kódu N">
@@ -90,7 +90,7 @@ export default function EncoderSidebarControls({ onSubmit, loading }) {
           step="0.25"
           value={designEbN0}
           onChange={(e) => setDesignEbN0(Number(e.target.value))}
-          style={{ width: "100%" }}
+          style={rangeStyle}
         />
         <div style={sliderValueStyle}>{Number(designEbN0).toFixed(2)}</div>
       </ControlGroup>
@@ -118,6 +118,8 @@ export default function EncoderSidebarControls({ onSubmit, loading }) {
 
 const inputStyle = {
   width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   padding: "14px 16px",
   borderRadius: 16,
   border: "1px solid #d8dee8",
@@ -127,6 +129,8 @@ const inputStyle = {
 
 const textareaStyle = {
   width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   padding: "14px 16px",
   borderRadius: 16,
   border: "1px solid #d8dee8",
@@ -134,6 +138,12 @@ const textareaStyle = {
   fontSize: 16,
   resize: "vertical",
   fontFamily: "inherit",
+};
+
+const rangeStyle = {
+  width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
 };
 
 const sliderValueStyle = {
@@ -146,6 +156,8 @@ const sliderValueStyle = {
 const buttonStyle = {
   marginTop: 6,
   width: "100%",
+  maxWidth: "100%",
+  boxSizing: "border-box",
   padding: "14px 18px",
   borderRadius: 16,
   border: "none",
