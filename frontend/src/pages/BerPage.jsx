@@ -8,6 +8,8 @@ import BerChart from "../components/ber/BerChart.jsx";
 import BerInterpretation from "../components/ber/BerInterpretation.jsx";
 import BerResultsTable from "../components/ber/BerResultsTable.jsx";
 import { useBer } from "../hooks/useBer.js";
+import { useNavigate } from "react-router-dom";
+import BackButton from "../components/common/BackButton.jsx";
 
 export default function BerPage() {
   const { result, loading, error, runComparison } = useBer();
@@ -22,9 +24,11 @@ export default function BerPage() {
       <BerSidebarControls onSubmit={handleSubmit} loading={loading} />
     </SidebarSection>
   );
+  const navigate = useNavigate();
 
   return (
     <AppShell sidebarControls={sidebarControls}>
+         <BackButton />
       <PageTitle
         title="BER simulácia polárnych kódov"
         description="Táto časť umožňuje simulovať bitovú chybovosť (BER) polárnych kódov pri SC dekódovaní na AWGN kanáli a porovnať výsledok s teoretickou BER nekódovaného BPSK prenosu."

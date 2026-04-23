@@ -8,6 +8,8 @@ import MaskGrid from "../components/mask/MaskGrid.jsx";
 import MaskInterpretation from "../components/mask/MaskInterpretation.jsx";
 import MaskTable from "../components/mask/MaskTable.jsx";
 import { useMask } from "../hooks/useMask.js";
+import { useNavigate } from "react-router-dom";
+import BackButton from "../components/common/BackButton.jsx";
 
 export default function MaskPage() {
   const { result, loading, error, runMask } = useMask();
@@ -24,7 +26,7 @@ export default function MaskPage() {
           onSubmit={handleSubmit}
         />
       }
-    >
+    >  <BackButton />
       <PageTitle
         title="Konštrukcia kódu – informačné a frozen bity"
         description="Táto časť ukazuje, ktoré pozície v polárnom kóde budú použité na prenos informačných bitov a ktoré budú nastavené ako frozen bity. Používateľ môže meniť parametre kódu a sledovať, ako sa mení výsledná maska."

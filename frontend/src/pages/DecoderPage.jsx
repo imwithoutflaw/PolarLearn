@@ -9,6 +9,8 @@ import DecisionLogTable from "../components/decoder/DecisionLogTable.jsx";
 import DecoderTreeView from "../components/decoder/DecoderTreeView.jsx";
 import DecoderScheduleView from "../components/decoder/DecoderScheduleView.jsx";
 import { useDecoder } from "../hooks/useDecoder.js";
+import { useNavigate } from "react-router-dom";
+import BackButton from "../components/common/BackButton.jsx";
 
 export default function DecoderPage() {
   const { result, loading, error, decode } = useDecoder();
@@ -37,6 +39,7 @@ export default function DecoderPage() {
         <DecoderSidebarControls loading={loading} onSubmit={handleSubmit} />
       }
     >
+       <BackButton />
       <PageTitle
         title="SC dekódovanie – krok za krokom"
         description="Táto časť ukazuje, ako prebieha successive cancellation decoding krok po kroku."

@@ -8,6 +8,8 @@ import ButterflyDiagram from "../components/encoder/ButterflyDiagram.jsx";
 import EncodingExplanation from "../components/encoder/EncodingExplanation.jsx";
 import InfoBox from "../components/common/InfoBox.jsx";
 import { useEncoder } from "../hooks/useEncoder.js";
+import { useNavigate } from "react-router-dom";
+import BackButton from "../components/common/BackButton.jsx";
 
 export default function EncoderPage() {
   const { result, loading, error, encode } = useEncoder();
@@ -37,7 +39,7 @@ export default function EncoderPage() {
           onSubmit={handleSubmit}
         />
       }
-    >
+    >  <BackButton />
       <PageTitle
         title="Encoder – krok za krokom"
         description="Táto časť ukazuje, ako sa informačné bity vložia do u-vektora a ako sa následne cez polárnu transformáciu vytvorí výsledné kódové slovo."

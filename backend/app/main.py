@@ -8,6 +8,8 @@ from app.api.routes.encoder import router as encoder_router
 from app.api.routes.decoder import router as decoder_router
 from app.api.routes.ber import router as ber_router
 from app.api.routes.polarization import router as polarization_router
+from app.api.routes.auth import router as auth_router
+from app.domain.services.auth_service import init_auth_db
 
 
 app = FastAPI(
@@ -23,6 +25,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(auth_router)
+init_auth_db()
 
 app.include_router(home_router, tags=["Home"])
 app.include_router(theory_router, prefix="/api/theory", tags=["Theory"])

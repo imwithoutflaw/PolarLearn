@@ -5,6 +5,8 @@ import SidebarPanelTitle from "../components/common/SidebarPanelTitle.jsx";
 import ControlGroup from "../components/common/ControlGroup.jsx";
 import SectionTitle from "../components/common/SectionTitle.jsx";
 import InfoBox from "../components/common/InfoBox.jsx";
+import { useNavigate } from "react-router-dom";
+import BackButton from "../components/common/BackButton.jsx";
 
 function becPolarizationStep(values) {
   const next = [];
@@ -469,6 +471,7 @@ export default function PolarizationPage() {
 
   return (
     <AppShell sidebarControls={sidebarControls}>
+         <BackButton />
       <PageTitle
         title="Channel polarization demo (BEC)"
         description="Táto časť ukazuje princíp polarizácie kanálov na príklade BEC (Binary Erasure Channel)."
