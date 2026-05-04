@@ -4,17 +4,14 @@ import PageTitle from "../components/common/PageTitle.jsx";
 import DecoderSidebarControls from "../components/decoder/DecoderSidebarControls.jsx";
 import DecoderSummary from "../components/decoder/DecoderSummary.jsx";
 import DecoderStepExplanation from "../components/decoder/DecoderStepExplanation.jsx";
-import DecoderLlrTable from "../components/decoder/DecoderLlrTable.jsx";
 import DecisionLogTable from "../components/decoder/DecisionLogTable.jsx";
 import DecoderTreeView from "../components/decoder/DecoderTreeView.jsx";
-import DecoderScheduleView from "../components/decoder/DecoderScheduleView.jsx";
 import { useDecoder } from "../hooks/useDecoder.js";
 import BackButton from "../components/common/BackButton.jsx";
 
 export default function DecoderPage() {
   const { result, loading, error, decode } = useDecoder();
   const [visibleStep, setVisibleStep] = useState(0);
-  const [viewMode, setViewMode] = useState("tree");
 
   const handleSubmit = useCallback(
     (payload) => {
@@ -24,13 +21,22 @@ export default function DecoderPage() {
   );
 
   const steps = result?.steps || [];
-  const maxStep = useMemo(() => steps.length, [steps]);
+
+  const visualSteps = useMemo(() => {
+    return steps.filter(
+      (step) =>
+        step.step_type === "leaf_decision" || step.step_type === "combine"
+    );
+  }, [steps]);
+
+  const maxStep = visualSteps.length;
 
   useEffect(() => {
     setVisibleStep(maxStep);
   }, [maxStep]);
 
-  const currentStep = visibleStep > 0 ? steps[visibleStep - 1] : null;
+  const currentStep =
+    visibleStep > 0 ? visualSteps[visibleStep - 1] : null;
 
   return (
     <AppShell
@@ -52,31 +58,18 @@ export default function DecoderPage() {
           <DecoderSummary result={result} />
 
           <div>
-            <div style={sectionTitle}>
-              Vizualizácia dekódovania
-            </div>
+            <div style={sectionTitle}>Vizualizácia dekódovania</div>
 
-            <div style={{ display: "flex", gap: 20 }}>
-              <label style={radioStyle}>
-                <input
-                  type="radio"
-                  checked={viewMode === "tree"}
-                  onChange={() => setViewMode("tree")}
-                />
-                <span>Strom</span>
-              </label>
+            <div style={noteStyle}>
+              Jeden krok v tejto vizualizácii predstavuje rozhodnutie jedného
+              bitu alebo combine operáciu. Pri rozhodnutí bitu sa zvýrazní celá
+              cesta v SC strome k príslušnému listu, pretože dekodér musí prejsť
+              viacerými úrovňami stromu.
             </div>
-              <div style={noteStyle}>
-                Jeden krok v tejto vizualizácii predstavuje rozhodnutie jedného
-                bitu alebo combine operáciu. Pri rozhodnutí bitu sa zvýrazní celá cesta v SC
-                strome k príslušnému listu, pretože dekodér musí prejsť viacerými úrovňami stromu.
-              </div>
           </div>
 
           <div>
-            <div style={sectionTitle}>
-              Zobraziť kroky do:
-            </div>
+            <div style={sectionTitle}>Zobraziť kroky do:</div>
 
             <div style={sliderControlsStyle}>
               <button
@@ -124,17 +117,16 @@ export default function DecoderPage() {
           </div>
 
           <div>
-            <DecoderTreeView steps={steps} visibleStep={visibleStep} />
+            <DecoderTreeView steps={visualSteps} visibleStep={visibleStep} />
             <DecoderStepExplanation step={currentStep} />
           </div>
 
-          <DecisionLogTable steps={steps.slice(0, visibleStep)} />
+          <DecisionLogTable steps={visualSteps.slice(0, visibleStep)} />
         </div>
       )}
     </AppShell>
   );
 }
-
 
 const errorStyle = {
   marginBottom: 24,
@@ -150,14 +142,6 @@ const sectionTitle = {
   fontWeight: 700,
   color: "#374151",
   marginBottom: 12,
-};
-
-const radioStyle = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  fontSize: 16,
-  color: "#374151",
 };
 
 const noteStyle = {

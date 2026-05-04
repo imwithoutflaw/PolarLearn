@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../../assets/stu-fei-logo.png";
+import logo from "../../assets/stu-fei-logo2.png";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 

@@ -114,12 +114,7 @@ def compute_stages(u: list[int]) -> list[list[int]]:
 
 
 def _f_func(a: float, b: float) -> float:
-    sign = 1.0
-    if a < 0:
-        sign *= -1.0
-    if b < 0:
-        sign *= -1.0
-    return sign * min(abs(a), abs(b))
+    return logdomain_sum(a + b, 0.0) - logdomain_sum(a, b)
 
 
 def _g_func(a: float, b: float, u: int) -> float:
@@ -277,3 +272,119 @@ def sc_decode(
         return u_hat, estimated_bits, trace
 
     return u_hat, estimated_bits, []
+
+def hard_decision(llr: float) -> int:
+    return 0 if llr >= 0 else 1
+
+
+def upper_llr(l1: float, l2: float) -> float:
+    return logdomain_sum(l1 + l2, 0.0) - logdomain_sum(l1, l2)
+
+
+def lower_llr(l1: float, l2: float, b: int) -> float:
+    if b == 0:
+        return l1 + l2
+    return l1 - l2
+
+
+def active_llr_level(i: int, n: int) -> int:
+    mask = 2 ** (n - 1)
+    cnt = 1
+
+    for _ in range(n):
+        if (mask & i) == 0:
+            cnt += 1
+            mask >>= 1
+        else:
+            break
+
+    return min(cnt, n)
+
+
+def active_bit_level(i: int, n: int) -> int:
+    mask = 2 ** (n - 1)
+    cnt = 1
+
+    for _ in range(n):
+        if (mask & i) > 0:
+            cnt += 1
+            mask >>= 1
+        else:
+            break
+
+    return min(cnt, n)
+
+
+def bit_reversed(i: int, n: int) -> int:
+    result = 0
+
+    for k in range(n):
+        if (i >> k) & 1:
+            result |= 1 << (n - 1 - k)
+
+    return result
+
+
+def sc_decode_for_ber(llr: list[float], mask: list[int]) -> tuple[list[int], list[int]]:
+    """
+    Iterative SC decoder for BER simulation.
+
+    Project mask convention:
+    mask[i] = 1 -> information bit
+    mask[i] = 0 -> frozen bit
+    """
+    N = len(llr)
+    n = int(round(math.log2(N)))
+
+    validate_llr(llr, N)
+    validate_mask(mask, N)
+
+    L = [[float("nan") for _ in range(n + 1)] for _ in range(N)]
+    B = [[0 for _ in range(n + 1)] for _ in range(N)]
+
+    for i in range(N):
+        L[i][0] = llr[i]
+
+    frozen_set = {i for i, value in enumerate(mask) if value == 0}
+
+    for i in range(N):
+        l = bit_reversed(i, n)
+
+        for s in range(n - active_llr_level(l, n), n):
+            block_size = 2 ** (s + 1)
+            branch_size = block_size // 2
+
+            for j in range(l, N, block_size):
+                if j % block_size < branch_size:
+                    top_llr = L[j][s]
+                    bottom_llr = L[j + branch_size][s]
+                    L[j][s + 1] = upper_llr(top_llr, bottom_llr)
+                else:
+                    bottom_llr = L[j][s]
+                    top_llr = L[j - branch_size][s]
+                    top_bit = B[j - branch_size][s + 1]
+                    L[j][s + 1] = lower_llr(bottom_llr, top_llr, top_bit)
+
+        if l in frozen_set:
+            B[l][n] = 0
+        else:
+            B[l][n] = hard_decision(L[l][n])
+
+        if l < N / 2:
+            continue
+
+        for s in range(n, n - active_bit_level(l, n), -1):
+            block_size = 2 ** s
+            branch_size = block_size // 2
+
+            for j in range(l, -1, -block_size):
+                if j % block_size >= branch_size:
+                    B[j - branch_size][s - 1] = (
+                        B[j][s] ^ B[j - branch_size][s]
+                    )
+                    B[j][s - 1] = B[j][s]
+
+    u_hat = [int(B[i][n]) for i in range(N)]
+    estimated_bits = [u_hat[i] for i in range(N) if mask[i] == 1]
+
+    return u_hat, estimated_bits

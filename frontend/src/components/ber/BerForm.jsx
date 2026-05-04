@@ -23,7 +23,7 @@ export default function BerForm({ onSubmit, loading }) {
   const [ebn0Start, setEbn0Start] = useState(0);
   const [ebn0Stop, setEbn0Stop] = useState(6);
   const [ebn0Step, setEbn0Step] = useState(0.5);
-  const [bitsTarget, setBitsTarget] = useState(1000);
+  const [bitsTarget, setBitsTarget] = useState(100000);
   const [minErrPlot, setMinErrPlot] = useState(30);
 
   const codesPreview = useMemo(() => {

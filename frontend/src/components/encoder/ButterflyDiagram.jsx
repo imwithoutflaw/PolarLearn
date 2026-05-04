@@ -93,6 +93,37 @@ export default function ButterflyDiagram({ result, visibleStage }) {
               {...lineStyle}
             />
           );
+
+          const xorX = x2 - 40;
+
+          lines.push(
+            <g key={`xor-${s}-${top}-${bottom}`}>
+                <circle
+                    cx={xorX}
+                    cy={yTop}
+                    r={bitCount <= 8 ? 15 : 12}
+                    fill="#ffffff"
+                    stroke={isVisibleConnection ? "#6b7280" : "#d1d5db"}
+                    strokeWidth="1.8"
+                />
+                <line
+                    x1={xorX - (bitCount <= 8 ? 9 : 7)}
+                    y1={yTop}
+                    x2={xorX + (bitCount <= 8 ? 9 : 7)}
+                    y2={yTop}
+                    stroke={isVisibleConnection ? "#6b7280" : "#d1d5db"}
+                    strokeWidth="1.5"
+                />
+                <line
+                    x1={xorX}
+                    y1={yTop - (bitCount <= 8 ? 9 : 7)}
+                    x2={xorX}
+                    y2={yTop + (bitCount <= 8 ? 9 : 7)}
+                    stroke={isVisibleConnection ? "#6b7280" : "#d1d5db"}
+                    strokeWidth="1.5"
+                />
+                </g>
+          );
         }
       }
     }

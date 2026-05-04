@@ -7,7 +7,7 @@ from app.api.schemas.ber import (
     BerResponse,
     TheoreticalPointResponse,
 )
-from app.domain.polar_core import construct_mask, polar_encode, sc_decode
+from app.domain.polar_core import construct_mask, polar_encode, sc_decode_for_ber
 from app.domain.utils.math_helpers import (
     awgn_channel,
     bpsk_modulate,
@@ -65,7 +65,7 @@ def _simulate_single_code(
             rx_symbols = awgn_channel(tx_symbols, sigma=sigma)
             llr = compute_llr_from_received(rx_symbols, sigma=sigma)
 
-            u_hat, estimated_bits, _ = sc_decode(llr=llr, mask=mask, return_trace=False)
+            u_hat, estimated_bits = sc_decode_for_ber(llr=llr, mask=mask)
 
             errors_in_frame = sum(
                 1 for expected, estimated in zip(info_bits, estimated_bits)

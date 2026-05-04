@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useState } from "react";
 import ControlGroup from "../common/ControlGroup.jsx";
 
 const N_OPTIONS = [8, 16, 32, 64, 128];
@@ -21,9 +21,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
   const [ebn0Step, setEbn0Step] = useState(0.5);
   const [bitsTarget, setBitsTarget] = useState(100000);
   const [minErrPlot, setMinErrPlot] = useState(30);
-
-  const initializedRef = useRef(false);
-
+  
   const codesPreview = useMemo(() => {
     return NList.map((N) => {
       const K = Math.max(1, Math.min(N - 1, Math.round(N * R)));
@@ -63,13 +61,6 @@ export default function BerSidebarControls({ onSubmit, loading }) {
 
     onSubmit(payload);
   };
-
-  useEffect(() => {
-    if (!initializedRef.current) {
-      initializedRef.current = true;
-      submitCurrent();
-    }
-  }, []);
 
   return (
     <div style={{ width: "100%", overflow: "hidden" }}>

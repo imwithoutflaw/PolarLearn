@@ -9,6 +9,7 @@ import EncodingExplanation from "../components/encoder/EncodingExplanation.jsx";
 import InfoBox from "../components/common/InfoBox.jsx";
 import { useEncoder } from "../hooks/useEncoder.js";
 import BackButton from "../components/common/BackButton.jsx";
+import GeneratorMatrix from "../components/encoder/GeneratorMatrix.jsx";
 
 export default function EncoderPage() {
   const { result, loading, error, encode } = useEncoder();
@@ -125,6 +126,7 @@ export default function EncoderPage() {
           </div>
 
           <ButterflyDiagram result={result} visibleStage={visibleStage} />
+          <GeneratorMatrix N={result?.N} />
 
           <InfoBox>
             OK: posledný stage sa zhoduje s kódovým slovom c.

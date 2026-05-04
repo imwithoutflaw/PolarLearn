@@ -388,7 +388,6 @@ export default function PolarizationPage() {
   const [n, setN] = useState(4);
   const [showSorted, setShowSorted] = useState(true);
   const [showHistogram, setShowHistogram] = useState(true);
-  const [showTable, setShowTable] = useState(true);
 
   const { finalValues, sortedValues, rows, histogramBins } = useMemo(() => {
     const levels = becPolarizationLevels(epsilon, n);
@@ -455,15 +454,6 @@ export default function PolarizationPage() {
             onChange={(e) => setShowHistogram(e.target.checked)}
           />
           <span>Zobraziť histogram</span>
-        </label>
-
-        <label style={checkStyle}>
-          <input
-            type="checkbox"
-            checked={showTable}
-            onChange={(e) => setShowTable(e.target.checked)}
-          />
-          <span>Zobraziť tabuľku hodnôt</span>
         </label>
       </div>
     </div>
@@ -534,13 +524,6 @@ export default function PolarizationPage() {
               title="Histogram výsledných hodnôt ε"
               bins={histogramBins}
             />
-          </div>
-        )}
-
-        {showTable && (
-          <div>
-            <SectionTitle>Tabuľka výsledných podkanálov</SectionTitle>
-            <PolarizationTable rows={rows} />
           </div>
         )}
 
