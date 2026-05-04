@@ -3,38 +3,70 @@ import math
 from app.domain.utils.validation import validate_code_params, validate_llr, validate_mask
 
 
-def _bhattacharyya_sequence_bec(N: int, design_ebn0_db: float) -> list[float]:
-    """
-    Builds a simple reliability sequence using Bhattacharyya recursion.
-    This is a heuristic educational approximation, suitable for MVP.
-    Lower value => more reliable channel.
-    """
-    validate_code_params(N, 1)
+def logdomain_sum(x: float, y: float) -> float:
+    if x > y:
+        return x + math.log1p(math.exp(y - x))
+    return y + math.log1p(math.exp(x - y))
 
-    snr_linear = 10 ** (design_ebn0_db / 10.0)
-    z = [0.5 * math.exp(-snr_linear)]
 
-    while len(z) < N:
-        next_z = []
-        for value in z:
-            upper = 2 * value - value * value
-            lower = value * value
+def logdomain_diff(x: float, y: float) -> float:
+    if x == -math.inf:
+        return -math.inf
+    if y == -math.inf:
+        return x
+    if y > x:
+        x, y = y, x
 
-            upper = min(max(upper, 0.0), 1.0)
-            lower = min(max(lower, 0.0), 1.0)
+    d = 1.0 - math.exp(y - x)
+    if d <= 0:
+        return -math.inf
 
-            next_z.append(upper)
-            next_z.append(lower)
-
-        z = next_z
-
-    return z
+    return x + math.log(d)
 
 
 def construct_mask(N: int, K: int, design_ebn0_db: float) -> tuple[list[int], list[int], list[int]]:
+    """
+    Constructs polar code mask using Bhattacharyya-like AWGN reliability recursion.
+
+    Current project convention:
+    mask[i] = 1 -> information bit
+    mask[i] = 0 -> frozen bit
+    """
     validate_code_params(N, K)
 
-    reliability = _bhattacharyya_sequence_bec(N, design_ebn0_db)
+    n = int(math.log2(N))
+
+    ebn0_linear = 10 ** (design_ebn0_db / 10.0)
+    rate = K / N
+    ebn0_normalized = ebn0_linear * rate
+
+    z0 = -ebn0_normalized
+
+    z = [[0.0 for _ in range(n + 1)] for _ in range(N)]
+
+    for i in range(N):
+        z[i][0] = z0
+
+    for depth in range(1, n + 1):
+        block = 2 ** depth
+        half = block // 2
+
+        for start in range(0, N, block):
+            for i in range(half):
+                top = start + i
+                bottom = start + half + i
+
+                z_top = z[top][depth - 1]
+                z_bottom = z[bottom][depth - 1]
+
+                s = logdomain_sum(z_top, z_bottom)
+                z_minus = logdomain_diff(s, z_top + z_bottom)
+                z_plus = z_top + z_bottom
+
+                z[top][depth] = z_minus
+                z[bottom][depth] = z_plus
+
+    reliability = [z[i][n] for i in range(N)]
 
     sorted_positions = sorted(range(N), key=lambda idx: reliability[idx])
     info_positions = sorted(sorted_positions[:K])
@@ -144,10 +176,54 @@ def _sc_decode_recursive(
 
     half = n // 2
 
-    left_llr = [_f_func(llr[i], llr[i + half]) for i in range(half)]
+    left_llr = []
+
+    for i in range(half):
+        value = _f_func(llr[i], llr[i + half])
+        left_llr.append(value)
+
+        trace.append(
+            {
+                "step_type": "f",
+                "offset": offset,
+                "size": n,
+                "bit_index": None,
+                "role": None,
+                "llr_value": value,
+                "decision": None,
+                "left_bits": None,
+                "right_bits": None,
+                "combined_bits": None,
+                "source_a": offset + i,
+                "source_b": offset + i + half,
+                "target": offset + i,
+            }
+        )
     u_left = _sc_decode_recursive(left_llr, mask, offset, trace, decisions)
 
-    right_llr = [_g_func(llr[i], llr[i + half], u_left[i]) for i in range(half)]
+    right_llr = []
+
+    for i in range(half):
+        value = _g_func(llr[i], llr[i + half], u_left[i])
+        right_llr.append(value)
+
+        trace.append(
+            {
+                "step_type": "g",
+                "offset": offset,
+                "size": n,
+                "bit_index": None,
+                "role": None,
+                "llr_value": value,
+                "decision": None,
+                "left_bits": None,
+                "right_bits": None,
+                "combined_bits": None,
+                "source_a": offset + i,
+                "source_b": offset + i + half,
+                "target": offset + i + half,
+            }
+        )
     u_right = _sc_decode_recursive(right_llr, mask, offset + half, trace, decisions)
 
     u = [0] * n
@@ -177,7 +253,7 @@ def sc_decode(
     llr: list[float],
     mask: list[int],
     return_trace: bool = True,
-) -> tuple[list[int], list[dict]]:
+) -> tuple[list[int], list[int], list[dict]]:
     N = len(llr)
     validate_code_params(N, 1)
     validate_llr(llr, N)
@@ -185,11 +261,19 @@ def sc_decode(
 
     trace: list[dict] = []
     decisions = [0] * N
-    _sc_decode_recursive(llr=llr, mask=mask, offset=0, trace=trace, decisions=decisions)
 
-    estimated_bits = [decisions[i] for i in range(N) if mask[i] == 1]
+    _sc_decode_recursive(
+        llr=llr,
+        mask=mask,
+        offset=0,
+        trace=trace,
+        decisions=decisions,
+    )
+
+    u_hat = decisions
+    estimated_bits = [u_hat[i] for i in range(N) if mask[i] == 1]
 
     if return_trace:
-        return estimated_bits, trace
+        return u_hat, estimated_bits, trace
 
-    return estimated_bits, []
+    return u_hat, estimated_bits, []

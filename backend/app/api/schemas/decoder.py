@@ -18,8 +18,14 @@ class DecodeStep(BaseModel):
     left_bits: list[int] | None = Field(default=None, description="Decoded left subtree bits")
     right_bits: list[int] | None = Field(default=None, description="Decoded right subtree bits")
     combined_bits: list[int] | None = Field(default=None, description="Combined subtree bits")
+    source_a: int | None = Field(default=None)
+    source_b: int | None = Field(default=None)
+    target: int | None = Field(default=None)
 
 
 class DecoderResponse(BaseModel):
+    u_hat: list[int] = Field(..., description="Full decoded u vector")
     estimated_bits: list[int] = Field(..., description="Estimated information bits")
+    msg_hat: list[int] | None = Field(default=None, description="Estimated message bits")
     steps: list[DecodeStep] = Field(..., description="Structured step-by-step decoding trace")
+    decode_ok: bool = Field(default=True, description="Whether decoding result is considered correct")

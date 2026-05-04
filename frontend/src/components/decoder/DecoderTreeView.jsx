@@ -1,244 +1,330 @@
 import React from "react";
-import SectionTitle from "../common/SectionTitle.jsx";
 
-function buildNodePositions(levels, leafCount, width, height, paddingX = 140, paddingY = 36) {
-  const pos = {};
-  const usableWidth = width - paddingX * 2;
-  const usableHeight = height - paddingY * 2;
+export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
+  if (!steps.length) return null;
 
-  for (let level = levels; level >= 0; level -= 1) {
-    const nodesInLevel = 2 ** level;
+  const leafSteps = steps.filter((step) => step.step_type === "leaf_decision");
+  const N = leafSteps.length || 1;
+  const depth = Math.ceil(Math.log2(N));
 
-    // root left, leaves right
-    const x = paddingX + (level / levels) * usableWidth;
+  const visibleSteps = steps.slice(0, visibleStep);
+  const currentStep = visibleStep > 0 ? steps[visibleStep - 1] : null;
 
-    for (let i = 0; i < nodesInLevel; i += 1) {
-      if (level === levels) {
-        const y =
-          paddingY + (i / Math.max(leafCount - 1, 1)) * usableHeight;
-        pos[`${level}-${i}`] = { x, y };
-      } else {
-        const left = pos[`${level + 1}-${2 * i}`];
-        const right = pos[`${level + 1}-${2 * i + 1}`];
-        pos[`${level}-${i}`] = {
-          x,
-          y: (left.y + right.y) / 2,
-        };
-      }
+  const processedRanges = visibleSteps.map((step) => {
+    if (step.step_type === "leaf_decision") {
+      const index = step.bit_index;
+      return { start: index, end: index, type: "leaf" };
     }
-  }
 
-  return pos;
-}
-
-function getPathToLeaf(leafIndex, levels) {
-  const path = [];
-  let nodeIndex = 0;
-
-  path.push({ level: 0, index: 0 });
-
-  for (let level = 1; level <= levels; level += 1) {
-    const bit = (leafIndex >> (levels - level)) & 1;
-    nodeIndex = nodeIndex * 2 + bit;
-    path.push({ level, index: nodeIndex });
-  }
-
-  return path;
-}
-
-function edgeKey(a, b) {
-  return `${a.level}-${a.index}->${b.level}-${b.index}`;
-}
-
-export default function DecoderTreeView({ steps }) {
-  if (!steps || steps.length === 0) return null;
-
-  const leafSteps = steps
-    .map((step, idx) => {
-      const bitIndex =
-        step.bit_index ??
-        step.index_l ??
-        step.index ??
-        idx;
-
-      const role =
-        step.role ??
-        step.type ??
-        (step.step_type === "leaf_decision" ? "info" : undefined) ??
-        "info";
-
-      const decision = step.decision ?? 0;
-
+    if (step.step_type === "combine") {
       return {
-        bitIndex,
-        role,
-        decision,
+        start: step.offset,
+        end: step.offset + step.size - 1,
+        type: "combine",
       };
-    })
-    .filter((step) => Number.isInteger(step.bitIndex));
-
-  const maxLeafIndex = leafSteps.length
-    ? Math.max(...leafSteps.map((s) => s.bitIndex))
-    : 1;
-
-  const leafCount = 2 ** Math.ceil(Math.log2(Math.max(maxLeafIndex + 1, 2)));
-  const levels = Math.round(Math.log2(leafCount));
-
-  const width = 1180;
-  const height = 620;
-  const positions = buildNodePositions(levels, leafCount, width, height);
-
-  const highlightedEdges = new Set();
-  const highlightedNodes = new Set();
-  const revealedLeaves = new Map();
-
-  leafSteps.forEach((step, i) => {
-    const path = getPathToLeaf(step.bitIndex, levels);
-
-    path.forEach((node) => {
-      highlightedNodes.add(`${node.level}-${node.index}`);
-    });
-
-    for (let k = 0; k < path.length - 1; k += 1) {
-      highlightedEdges.add(edgeKey(path[k], path[k + 1]));
     }
 
-    revealedLeaves.set(step.bitIndex, {
-      ...step,
-      isCurrent: i === leafSteps.length - 1,
-    });
-  });
+    return null;
+  }).filter(Boolean);
 
-  const edges = [];
-  for (let level = 0; level < levels; level += 1) {
-    const nodesInLevel = 2 ** level;
+  const width = 1000;
+  const height = Math.max(360, N * 56);
+  const marginLeft = 110;
+  const marginRight = 110;
+  const marginTop = 45;
+  const marginBottom = 55;
 
-    for (let i = 0; i < nodesInLevel; i += 1) {
-      const parent = { level, index: i };
-      const left = { level: level + 1, index: i * 2 };
-      const right = { level: level + 1, index: i * 2 + 1 };
+  const xStep = (width - marginLeft - marginRight) / depth;
+  const yStep = (height - marginTop - marginBottom) / Math.max(1, N - 1);
 
-      edges.push([parent, left]);
-      edges.push([parent, right]);
-    }
+  function getNodePosition(level, leafStart, leafEnd) {
+    return {
+      x: marginLeft + level * xStep,
+      y: marginTop + ((leafStart + leafEnd) / 2) * yStep,
+    };
   }
+
+  function rangesOverlap(aStart, aEnd, bStart, bEnd) {
+    return aStart <= bEnd && bStart <= aEnd;
+  }
+
+  function sameRange(range, start, end) {
+    return range?.start === start && range?.end === end;
+  }
+
+  function getCurrentRange() {
+    if (!currentStep) return null;
+
+    if (currentStep.step_type === "leaf_decision") {
+      return {
+        start: currentStep.bit_index,
+        end: currentStep.bit_index,
+        type: "leaf",
+      };
+    }
+
+    if (currentStep.step_type === "combine") {
+      return {
+        start: currentStep.offset,
+        end: currentStep.offset + currentStep.size - 1,
+        type: "combine",
+      };
+    }
+
+    return null;
+  }
+
+  const currentRange = getCurrentRange();
+
+  function buildEdges(level, leafStart, leafEnd, edges = []) {
+    if (level === depth || leafStart === leafEnd) {
+      return edges;
+    }
+
+    const mid = Math.floor((leafStart + leafEnd) / 2);
+
+    const parent = getNodePosition(level, leafStart, leafEnd);
+    const leftChild = getNodePosition(level + 1, leafStart, mid);
+    const rightChild = getNodePosition(level + 1, mid + 1, leafEnd);
+
+    edges.push({
+      from: parent,
+      to: leftChild,
+      parentStart: leafStart,
+      parentEnd: leafEnd,
+      childStart: leafStart,
+      childEnd: mid,
+    });
+
+    edges.push({
+      from: parent,
+      to: rightChild,
+      parentStart: leafStart,
+      parentEnd: leafEnd,
+      childStart: mid + 1,
+      childEnd: leafEnd,
+    });
+
+    buildEdges(level + 1, leafStart, mid, edges);
+    buildEdges(level + 1, mid + 1, leafEnd, edges);
+
+    return edges;
+  }
+
+  function buildNodes(level, leafStart, leafEnd, nodes = []) {
+    const position = getNodePosition(level, leafStart, leafEnd);
+
+    nodes.push({
+      ...position,
+      level,
+      leafStart,
+      leafEnd,
+      isLeaf: level === depth || leafStart === leafEnd,
+    });
+
+    if (level === depth || leafStart === leafEnd) {
+      return nodes;
+    }
+
+    const mid = Math.floor((leafStart + leafEnd) / 2);
+
+    buildNodes(level + 1, leafStart, mid, nodes);
+    buildNodes(level + 1, mid + 1, leafEnd, nodes);
+
+    return nodes;
+  }
+
+  function edgeIsProcessed(edge) {
+    return processedRanges.some((range) =>
+      rangesOverlap(edge.childStart, edge.childEnd, range.start, range.end)
+    );
+  }
+
+  function nodeIsProcessed(node) {
+    return processedRanges.some((range) =>
+      rangesOverlap(node.leafStart, node.leafEnd, range.start, range.end)
+    );
+  }
+
+  function edgeIsCurrent(edge) {
+    if (!currentRange) return false;
+
+    if (currentRange.type === "leaf") {
+      return (
+        currentRange.start >= edge.childStart &&
+        currentRange.start <= edge.childEnd
+      );
+    }
+
+    if (currentRange.type === "combine") {
+      return (
+        rangesOverlap(
+          edge.childStart,
+          edge.childEnd,
+          currentRange.start,
+          currentRange.end
+        ) &&
+        edge.parentStart >= currentRange.start &&
+        edge.parentEnd <= currentRange.end
+      );
+    }
+
+    return false;
+  }
+
+  function nodeIsCurrent(node) {
+    if (!currentRange) return false;
+
+    return sameRange(currentRange, node.leafStart, node.leafEnd);
+  }
+
+  const edges = buildEdges(0, 0, N - 1);
+  const nodes = buildNodes(0, 0, N - 1);
 
   return (
     <div>
-      <SectionTitle>SC dekódovanie – vizualizácia krokov (strom)</SectionTitle>
+      <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 30 }}>
+        SC dekódovanie – vizualizácia krokov (strom)
+      </h2>
 
       <div
         style={{
-          background: "#fff",
           border: "1px solid #e5e7eb",
-          borderRadius: 20,
-          padding: 20,
+          borderRadius: 18,
+          background: "#fff",
+          padding: 16,
           overflowX: "auto",
         }}
       >
-        <svg width="100%" height="640" viewBox={`0 0 ${width} ${height}`}>
-          {edges.map(([a, b], idx) => {
-            const pa = positions[`${a.level}-${a.index}`];
-            const pb = positions[`${b.level}-${b.index}`];
-            const isActive = highlightedEdges.has(edgeKey(a, b));
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          style={{
+            width: "100%",
+            minWidth: 860,
+            height: "auto",
+            display: "block",
+          }}
+        >
+          {edges.map((edge, index) => {
+            const current = edgeIsCurrent(edge);
+            const processed = edgeIsProcessed(edge);
 
             return (
               <line
-                key={idx}
-                x1={pa.x}
-                y1={pa.y}
-                x2={pb.x}
-                y2={pb.y}
-                stroke={isActive ? "#555" : "#d9d9d9"}
-                strokeWidth={isActive ? 3.5 : 2}
+                key={`edge-${index}`}
+                x1={edge.from.x}
+                y1={edge.from.y}
+                x2={edge.to.x}
+                y2={edge.to.y}
+                stroke={
+                  current
+                    ? "#ec4899"
+                    : processed
+                      ? "#111827"
+                      : "#d1d5db"
+                }
+                strokeWidth={current ? 4.5 : processed ? 3.2 : 2}
                 strokeLinecap="round"
               />
             );
           })}
 
-          {Array.from({ length: levels + 1 }, (_, level) => {
-            const nodesInLevel = 2 ** level;
-
-            return Array.from({ length: nodesInLevel }, (_, i) => {
-              const p = positions[`${level}-${i}`];
-              const isActive = highlightedNodes.has(`${level}-${i}`);
-
-              return (
-                <circle
-                  key={`${level}-${i}`}
-                  cx={p.x}
-                  cy={p.y}
-                  r={level === levels ? 7 : 5}
-                  fill={isActive ? "#111" : "#cfcfcf"}
-                />
-              );
-            });
-          })}
-
-          {Array.from({ length: leafCount }, (_, leafIndex) => {
-            const p = positions[`${levels}-${leafIndex}`];
-            const leaf = revealedLeaves.get(leafIndex);
-
-            if (!leaf) {
-              return (
-                <text
-                  key={`leaf-idx-${leafIndex}`}
-                  x={70}
-                  y={p.y + 5}
-                  fontSize="16"
-                  fill="#555"
-                >
-                  {leafIndex}
-                </text>
-              );
-            }
-
-            const roleLabel = leaf.role === "frozen" ? "F" : "I";
+          {nodes.map((node, index) => {
+            const current = nodeIsCurrent(node);
+            const processed = nodeIsProcessed(node);
 
             return (
-              <g key={`leaf-label-${leafIndex}`}>
-                <text
-                  x={70}
-                  y={p.y + 5}
-                  fontSize="16"
-                  fill="#555"
-                >
-                  {leafIndex}
-                </text>
+              <circle
+                key={`node-${index}`}
+                cx={node.x}
+                cy={node.y}
+                r={current ? 8 : 5.5}
+                fill={
+                  current
+                    ? "#ec4899"
+                    : processed
+                      ? "#111827"
+                      : "#cbd5e1"
+                }
+              />
+            );
+          })}
 
+          {leafSteps.map((step, index) => {
+            const pos = getNodePosition(depth, index, index);
+            const processed = processedRanges.some((range) =>
+              rangesOverlap(index, index, range.start, range.end)
+            );
+            const current =
+              currentRange?.type === "leaf" &&
+              currentRange.start === index &&
+              currentRange.end === index;
+
+            return (
+              <g key={`leaf-label-${index}`}>
                 <text
-                  x={p.x - 34}
-                  y={p.y - 10}
-                  fontSize="18"
-                  fill={leaf.isCurrent ? "#444" : "#7a7a7a"}
-                  fontWeight={leaf.isCurrent ? 700 : 500}
+                  x={pos.x - 28}
+                  y={pos.y - 10}
                   textAnchor="middle"
+                  fontSize="16"
+                  fontWeight="700"
+                  fill={
+                    current
+                      ? "#ec4899"
+                      : processed
+                        ? "#111827"
+                        : "#94a3b8"
+                  }
                 >
-                  {roleLabel}
+                  {step.role === "frozen" ? "F" : "I"}
                 </text>
 
                 <text
-                  x={p.x + 24}
-                  y={p.y + 6}
-                  fontSize="22"
-                  fill="#111"
-                  fontWeight={leaf.isCurrent ? 700 : 500}
+                  x={pos.x + 28}
+                  y={pos.y + 6}
+                  fontSize="18"
+                  fontWeight="700"
+                  fill={
+                    current
+                      ? "#ec4899"
+                      : processed
+                        ? "#111827"
+                        : "#94a3b8"
+                  }
                 >
-                  {leaf.decision}
+                  {processed ? step.decision ?? "" : ""}
                 </text>
               </g>
             );
           })}
 
-          {Array.from({ length: levels + 1 }, (_, level) => {
-            const x = positions[`${level}-0`].x;
+          {Array.from({ length: N }, (_, index) => {
+            const y = marginTop + index * yStep;
+
             return (
               <text
-                key={`xidx-${level}`}
+                key={`index-${index}`}
+                x={marginLeft - 55}
+                y={y + 5}
+                fontSize="15"
+                fill="#374151"
+                textAnchor="middle"
+              >
+                {index}
+              </text>
+            );
+          })}
+
+          {Array.from({ length: depth + 1 }, (_, level) => {
+            const x = marginLeft + level * xStep;
+
+            return (
+              <text
+                key={`depth-${level}`}
                 x={x}
-                y={height - 14}
-                fontSize="16"
-                fill="#555"
+                y={height - 22}
+                fontSize="15"
+                fill="#374151"
                 textAnchor="middle"
               >
                 {level}
@@ -247,24 +333,24 @@ export default function DecoderTreeView({ steps }) {
           })}
 
           <text
-            x={width / 2}
-            y={height - 40}
-            fontSize="18"
-            fill="#555"
+            x={38}
+            y={height / 2}
+            fontSize="17"
+            fill="#374151"
             textAnchor="middle"
+            transform={`rotate(-90, 38, ${height / 2})`}
           >
-            Úroveň stromu (depth)
+            Index bitu (listy)
           </text>
 
           <text
-            x={32}
-            y={height / 2}
-            transform={`rotate(-90 32 ${height / 2})`}
-            fontSize="18"
-            fill="#555"
+            x={width / 2}
+            y={height - 6}
+            fontSize="17"
+            fill="#374151"
             textAnchor="middle"
           >
-            Index bitu (listy)
+            Úroveň stromu (depth)
           </text>
         </svg>
       </div>

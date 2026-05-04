@@ -65,7 +65,7 @@ def _simulate_single_code(
             rx_symbols = awgn_channel(tx_symbols, sigma=sigma)
             llr = compute_llr_from_received(rx_symbols, sigma=sigma)
 
-            estimated_bits, _ = sc_decode(llr=llr, mask=mask, return_trace=False)
+            u_hat, estimated_bits, _ = sc_decode(llr=llr, mask=mask, return_trace=False)
 
             errors_in_frame = sum(
                 1 for expected, estimated in zip(info_bits, estimated_bits)

@@ -10,6 +10,7 @@ export default function AppLayout({ sidebarControls, children }) {
         background: "#eef2f8",
         color: "#0f172a",
         padding: 18,
+        overflowX: "hidden",
       }}
     >
       <TopBar />
@@ -17,9 +18,10 @@ export default function AppLayout({ sidebarControls, children }) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "300px 1fr",
+          gridTemplateColumns: "300px minmax(0, 1fr)",
           gap: 18,
           marginTop: 18,
+          alignItems: "start",
         }}
       >
         <aside
@@ -29,6 +31,7 @@ export default function AppLayout({ sidebarControls, children }) {
             borderRadius: 16,
             padding: 18,
             boxShadow: "0 4px 16px rgba(15, 23, 42, 0.07)",
+            minWidth: 0,
           }}
         >
           <SidebarNav />
@@ -55,6 +58,7 @@ export default function AppLayout({ sidebarControls, children }) {
             boxShadow: "0 10px 28px rgba(15, 23, 42, 0.08)",
             padding: "30px 32px 36px",
             minWidth: 0,
+            overflow: "hidden",
           }}
         >
           {children}

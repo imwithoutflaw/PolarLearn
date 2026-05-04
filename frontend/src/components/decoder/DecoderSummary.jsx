@@ -3,15 +3,40 @@ import React from "react";
 export default function DecoderSummary({ result }) {
   if (!result) return null;
 
+  const originalBits = result.original_bits || [];
+  const codeword = result.codeword || [];
   const uHat = result.u_hat || [];
   const msgHat = result.estimated_bits || result.msg_hat || [];
+
   const isOk =
-    result.decode_ok ??
-    result.success ??
-    true;
+    originalBits.length > 0
+      ? originalBits.join("") === msgHat.join("")
+      : result.decode_ok ?? result.success ?? true;
 
   return (
-    <div style={{ display: "grid", gap: 24 }}>
+    <div style={{ display: "grid", gap: 18 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 18,
+        }}
+      >
+        <div style={boxStyle}>
+          <div style={labelStyle}>Pôvodná správa:</div>
+          <div style={monoStyle}>
+            {originalBits.length ? originalBits.join(" ") : "—"}
+          </div>
+        </div>
+
+        <div style={boxStyle}>
+          <div style={labelStyle}>Zakódované slovo c:</div>
+          <div style={monoStyle}>
+            {codeword.length ? codeword.join(" ") : "—"}
+          </div>
+        </div>
+      </div>
+
       <div
         style={{
           display: "grid",

@@ -7,7 +7,7 @@ export default function MaskGrid({ result }) {
   const mask = result.mask || [];
 
   return (
-    <div>
+    <div style={{ minWidth: 0, maxWidth: "100%" }}>
       <SectionTitle>Vizualizácia masky</SectionTitle>
 
       <div
@@ -17,6 +17,8 @@ export default function MaskGrid({ result }) {
           background: "#fff",
           padding: 10,
           overflowX: "auto",
+          maxWidth: "100%",
+          boxSizing: "border-box",
         }}
       >
         <div
@@ -34,7 +36,7 @@ export default function MaskGrid({ result }) {
                 <div
                   style={{
                     height: 140,
-                    background: isInfo ? "#eadf29" : "#4b006e",
+                    background: isInfo ? "#3BB143" : "#1569C7",
                     borderRight: "1px solid rgba(255,255,255,0.15)",
                     borderBottom: "1px solid #d1d5db",
                   }}
@@ -62,10 +64,10 @@ export default function MaskGrid({ result }) {
           color: "#64748b",
           fontSize: 17,
           lineHeight: 1.7,
+          overflowWrap: "anywhere",
         }}
       >
         Hodnota 1 predstavuje informačný bit, hodnota 0 predstavuje frozen bit.
-        Takto je možné vizuálne sledovať rozloženie spoľahlivých a nespoľahlivých podkanálov.
       </div>
     </div>
   );

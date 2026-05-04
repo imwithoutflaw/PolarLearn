@@ -10,8 +10,17 @@ export function useDecoder() {
     try {
       setLoading(true);
       setError("");
+
       const data = await runDecoder(payload);
-      setResult(data);
+
+      setResult({
+        ...data,
+        original_bits: payload.original_bits || [],
+        u_vector: payload.u_vector || [],
+        codeword: payload.codeword || [],
+        input_llr: payload.llr || [],
+      });
+
     } catch (err) {
       setError(
         err?.message ||

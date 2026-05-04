@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ControlGroup from "../common/ControlGroup.jsx";
 import SidebarPanelTitle from "../common/SidebarPanelTitle.jsx";
+import { constructMask } from "../../api/maskApi.js";
 
 const N_OPTIONS = [8, 16, 32, 64];
 const R_OPTIONS = [0.25, 0.5, 0.75];
@@ -8,15 +9,16 @@ const R_OPTIONS = [0.25, 0.5, 0.75];
 function buildMask(N, K) {
   const mask = Array(N).fill(0);
   const start = N - K;
+
   for (let i = start; i < N; i += 1) {
     mask[i] = 1;
   }
+
   return mask.join(", ");
 }
 
 function buildLlr(N) {
-  const base = [5.0, 4.0, -3.0, 2.0, -4.0, 3.0, -2.5, 1.5];
-  return Array.from({ length: N }, (_, i) => base[i % base.length]).join(", ");
+  return Array(N).fill(0).join(", ");
 }
 
 function parseNumberArray(value) {
@@ -27,12 +29,68 @@ function parseNumberArray(value) {
     .map(Number);
 }
 
+function polarEncode(u) {
+  const x = [...u];
+  let step = 1;
+
+  while (step < x.length) {
+    const blockSize = step * 2;
+
+    for (let start = 0; start < x.length; start += blockSize) {
+      for (let i = 0; i < step; i += 1) {
+        x[start + i] = x[start + i] ^ x[start + i + step];
+      }
+    }
+
+    step *= 2;
+  }
+
+  return x;
+}
+
+function gaussianNoise(sigma) {
+  const u1 = Math.random() || 1e-12;
+  const u2 = Math.random() || 1e-12;
+
+  return (
+    sigma *
+    Math.sqrt(-2 * Math.log(u1)) *
+    Math.cos(2 * Math.PI * u2)
+  );
+}
+
+function ebn0DbToLinear(ebn0Db) {
+  return 10 ** (ebn0Db / 10);
+}
+
+function computeSigma(ebn0Db, rate) {
+  const ebn0Linear = ebn0DbToLinear(ebn0Db);
+  return Math.sqrt(1 / (2 * rate * ebn0Linear));
+}
+
+function generateChannelLlr(codeword, ebn0Db, rate, mode) {
+  if (mode === "ideal") {
+    return codeword.map((bit) => (bit === 0 ? 50 : -50));
+  }
+
+  const sigma = computeSigma(ebn0Db, rate);
+
+  return codeword.map((bit) => {
+    const x = bit === 0 ? 1 : -1;
+    const y = x + gaussianNoise(sigma);
+    const llr = (2 * y) / (sigma * sigma);
+
+    return Number(llr.toFixed(4));
+  });
+}
+
 export default function DecoderSidebarControls({ onSubmit, loading }) {
   const [N, setN] = useState(8);
   const [R, setR] = useState(0.5);
   const [designEbN0Mask, setDesignEbN0Mask] = useState(2.0);
   const [channelEbN0, setChannelEbN0] = useState(2.0);
   const [channelMode, setChannelMode] = useState("ideal");
+  const [maskMode, setMaskMode] = useState("auto");
   const [llr, setLlr] = useState(buildLlr(8));
   const [mask, setMask] = useState(buildMask(8, 4));
   const initializedRef = useRef(false);
@@ -48,11 +106,54 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
     setMask(buildMask(N, K));
   }, [N, K]);
 
-  const submitCurrent = () => {
+  const submitCurrent = async () => {
+    let maskArr;
+
+    if (maskMode === "auto") {
+      const maskResponse = await constructMask({
+        N,
+        K,
+        design_ebn0_db: designEbN0Mask,
+      });
+
+      maskArr = maskResponse.mask;
+      setMask(maskArr.join(", "));
+    } else {
+      maskArr = parseNumberArray(mask);
+    }
+
+    const originalBits = maskArr
+      .map((m) => (m === 1 ? (Math.random() < 0.5 ? 0 : 1) : null))
+      .filter((v) => v !== null);
+
+    let infoIndex = 0;
+
+    const u = maskArr.map((m) => {
+      if (m === 1) {
+        return originalBits[infoIndex++];
+      }
+      return 0;
+    });
+
+    const codeword = polarEncode(u);
+    const rate = K / N;
+
+    const generatedLLR = generateChannelLlr(
+      codeword,
+      channelEbN0,
+      rate,
+      channelMode
+    );
+
+    setLlr(generatedLLR.join(", "));
+
     onSubmit({
       N,
-      llr: parseNumberArray(llr),
-      mask: parseNumberArray(mask),
+      llr: generatedLLR,
+      mask: maskArr,
+      original_bits: originalBits,
+      u_vector: u,
+      codeword,
       design_ebn0_db: designEbN0Mask,
       channel_ebn0_db: channelEbN0,
       channel_mode: channelMode,
@@ -111,6 +212,26 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
         <div style={sliderValueStyle}>{designEbN0Mask.toFixed(2)}</div>
       </ControlGroup>
 
+      <ControlGroup title="Režim masky">
+        <label style={radioRowStyle}>
+          <input
+            type="radio"
+            checked={maskMode === "auto"}
+            onChange={() => setMaskMode("auto")}
+          />
+          <span>Automatická maska</span>
+        </label>
+
+        <label style={radioRowStyle}>
+          <input
+            type="radio"
+            checked={maskMode === "manual"}
+            onChange={() => setMaskMode("manual")}
+          />
+          <span>Ručná maska</span>
+        </label>
+      </ControlGroup>
+
       <ControlGroup title="Eb/N0 kanála (dB)">
         <input
           type="range"
@@ -133,6 +254,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
           />
           <span>Bez šumu (ideálne)</span>
         </label>
+
         <label style={radioRowStyle}>
           <input
             type="radio"
@@ -149,6 +271,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
           onChange={(e) => setLlr(e.target.value)}
           rows={4}
           style={textareaStyle}
+          readOnly
         />
       </ControlGroup>
 
@@ -158,6 +281,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
           onChange={(e) => setMask(e.target.value)}
           rows={3}
           style={textareaStyle}
+          readOnly={maskMode === "auto"}
         />
       </ControlGroup>
 

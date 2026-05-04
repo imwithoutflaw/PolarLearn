@@ -9,7 +9,6 @@ import DecisionLogTable from "../components/decoder/DecisionLogTable.jsx";
 import DecoderTreeView from "../components/decoder/DecoderTreeView.jsx";
 import DecoderScheduleView from "../components/decoder/DecoderScheduleView.jsx";
 import { useDecoder } from "../hooks/useDecoder.js";
-import { useNavigate } from "react-router-dom";
 import BackButton from "../components/common/BackButton.jsx";
 
 export default function DecoderPage() {
@@ -39,52 +38,47 @@ export default function DecoderPage() {
         <DecoderSidebarControls loading={loading} onSubmit={handleSubmit} />
       }
     >
-       <BackButton />
+      <BackButton />
+
       <PageTitle
         title="SC dekódovanie – krok za krokom"
         description="Táto časť ukazuje, ako prebieha successive cancellation decoding krok po kroku."
       />
 
-      {error && (
-        <div
-          style={{
-            marginBottom: 24,
-            padding: "16px 20px",
-            borderRadius: 18,
-            background: "#fdecea",
-            border: "1px solid #f0b6b1",
-            color: "#b42318",
-            fontSize: 16,
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div style={errorStyle}>{error}</div>}
 
       {result && (
         <div style={{ display: "grid", gap: 34 }}>
           <DecoderSummary result={result} />
 
           <div>
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                color: "#374151",
-                marginBottom: 12,
-              }}
-            >
+            <div style={sectionTitle}>
+              Vizualizácia dekódovania
+            </div>
+
+            <div style={{ display: "flex", gap: 20 }}>
+              <label style={radioStyle}>
+                <input
+                  type="radio"
+                  checked={viewMode === "tree"}
+                  onChange={() => setViewMode("tree")}
+                />
+                <span>Strom</span>
+              </label>
+            </div>
+              <div style={noteStyle}>
+                Jeden krok v tejto vizualizácii predstavuje rozhodnutie jedného
+                bitu alebo combine operáciu. Pri rozhodnutí bitu sa zvýrazní celá cesta v SC
+                strome k príslušnému listu, pretože dekodér musí prejsť viacerými úrovňami stromu.
+              </div>
+          </div>
+
+          <div>
+            <div style={sectionTitle}>
               Zobraziť kroky do:
             </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "180px 1fr 180px",
-                gap: 14,
-                alignItems: "center",
-              }}
-            >
+            <div style={sliderControlsStyle}>
               <button
                 type="button"
                 onClick={() => setVisibleStep((prev) => Math.max(0, prev - 1))}
@@ -92,10 +86,9 @@ export default function DecoderPage() {
                 style={{
                   ...stepButtonStyle,
                   opacity: visibleStep === 0 ? 0.5 : 1,
-                  cursor: visibleStep === 0 ? "not-allowed" : "pointer",
                 }}
               >
-                ← Predchádzajúci krok
+                ← Back
               </button>
 
               <input
@@ -117,100 +110,23 @@ export default function DecoderPage() {
                 style={{
                   ...stepButtonStyle,
                   opacity: visibleStep === maxStep ? 0.5 : 1,
-                  cursor: visibleStep === maxStep ? "not-allowed" : "pointer",
                 }}
               >
-                Ďalší krok →
+                Next →
               </button>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                marginTop: 8,
-                color: "#6b7280",
-                fontSize: 14,
-              }}
-            >
+            <div style={sliderNumbers}>
               <span>0</span>
               <span>{visibleStep}</span>
               <span>{maxStep}</span>
             </div>
-
-            {currentStep && (
-              <div
-                style={{
-                  marginTop: 14,
-                  color: "#6b7280",
-                  fontSize: 15,
-                }}
-              >
-                Aktuálny krok: Step={visibleStep}, Index=
-                {currentStep.bit_index ?? currentStep.index_l ?? "-"}, Type=
-                {currentStep.role ?? currentStep.step_type ?? "-"}, LLR=
-                {Number(
-                  currentStep.llr_value ?? currentStep.llr ?? 0
-                ).toFixed(4)}
-                , Decision={currentStep.decision ?? "-"}
-              </div>
-            )}
           </div>
-
-          <DecoderStepExplanation step={currentStep} />
 
           <div>
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 700,
-                color: "#374151",
-                marginBottom: 12,
-              }}
-            >
-              Vizualizácia dekódovania
-            </div>
-
-            <div style={{ display: "flex", gap: 20, marginBottom: 14 }}>
-              <label style={radioStyle}>
-                <input
-                  type="radio"
-                  checked={viewMode === "tree"}
-                  onChange={() => setViewMode("tree")}
-                />
-                <span>Strom</span>
-              </label>
-
-              <label style={radioStyle}>
-                <input
-                  type="radio"
-                  checked={viewMode === "schedule"}
-                  onChange={() => setViewMode("schedule")}
-                />
-                <span>Schedule (butterfly)</span>
-              </label>
-            </div>
-
-            <div
-              style={{
-                color: "#6b7280",
-                fontSize: 16,
-                marginBottom: 16,
-              }}
-            >
-              {viewMode === "tree"
-                ? "Zvýrazňuje sa cesta v strome ku listom, ktoré už boli rozhodnuté."
-                : "Táto schéma zobrazuje výpočtový graf SC dekódovania."}
-            </div>
-
-            {viewMode === "tree" ? (
-              <DecoderTreeView steps={steps.slice(0, visibleStep)} />
-            ) : (
-              <DecoderScheduleView steps={steps.slice(0, visibleStep)} />
-            )}
+            <DecoderTreeView steps={steps} visibleStep={visibleStep} />
+            <DecoderStepExplanation step={currentStep} />
           </div>
-
-          <DecoderLlrTable result={result} />
 
           <DecisionLogTable steps={steps.slice(0, visibleStep)} />
         </div>
@@ -219,12 +135,55 @@ export default function DecoderPage() {
   );
 }
 
+
+const errorStyle = {
+  marginBottom: 24,
+  padding: "16px 20px",
+  borderRadius: 18,
+  background: "#fdecea",
+  border: "1px solid #f0b6b1",
+  color: "#b42318",
+};
+
+const sectionTitle = {
+  fontSize: 18,
+  fontWeight: 700,
+  color: "#374151",
+  marginBottom: 12,
+};
+
 const radioStyle = {
   display: "flex",
   alignItems: "center",
   gap: 8,
   fontSize: 16,
   color: "#374151",
+};
+
+const noteStyle = {
+  marginTop: 12,
+  padding: "12px 16px",
+  borderRadius: 14,
+  background: "#eef6ff",
+  border: "1px solid #bfdbfe",
+  color: "#1e3a8a",
+  fontSize: 15,
+  lineHeight: 1.6,
+};
+
+const sliderControlsStyle = {
+  display: "grid",
+  gridTemplateColumns: "140px 1fr 140px",
+  gap: 14,
+  alignItems: "center",
+};
+
+const sliderNumbers = {
+  display: "flex",
+  justifyContent: "space-between",
+  marginTop: 8,
+  color: "#6b7280",
+  fontSize: 14,
 };
 
 const stepButtonStyle = {
