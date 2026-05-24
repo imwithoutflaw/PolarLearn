@@ -2,8 +2,35 @@ import React from "react";
 import TopBar from "../components/layout/TopBar.jsx";
 import HomeCard from "../components/home/HomeCard.jsx";
 import { navItems } from "../config/navItems.js";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function HomePage() {
+  const { t } = useLanguage();
+
+  const heroTags = [
+    t("homeTagMask"),
+    t("homeTagEncoder"),
+    t("homeTagDecoder"),
+    "BER",
+    t("homeTagPolarization"),
+  ];
+
+  const appActions = [
+    t("homeActionMask"),
+    t("homeActionEncoder"),
+    t("homeActionDecoder"),
+    t("homeActionBer"),
+    t("homeActionPolarization"),
+  ];
+
+  const workflowSteps = [
+    t("homeWorkflow1"),
+    t("homeWorkflow2"),
+    t("homeWorkflow3"),
+    t("homeWorkflow4"),
+    t("homeWorkflow5"),
+  ];
+
   return (
     <div
       style={{
@@ -57,7 +84,7 @@ export default function HomePage() {
                   marginBottom: 18,
                 }}
               >
-                Polar Codes Laboratory
+                {t("homeBadge")}
               </div>
 
               <h1
@@ -82,9 +109,7 @@ export default function HomePage() {
                   lineHeight: 1.7,
                 }}
               >
-                Interactive environment for polar code construction, encoding,
-                SC decoding, BER simulation, and channel polarization
-                visualization.
+                {t("homeHeroDescription")}
               </p>
 
               <div
@@ -95,24 +120,22 @@ export default function HomePage() {
                   marginTop: 22,
                 }}
               >
-                {["Mask Construction", "Encoder", "SC Decoder", "BER", "Polarization"].map(
-                  (tag) => (
-                    <span
-                      key={tag}
-                      style={{
-                        padding: "10px 14px",
-                        borderRadius: 999,
-                        background: "#eef4ff",
-                        border: "1px solid #cfe0ff",
-                        color: "#334155",
-                        fontSize: 14,
-                        fontWeight: 700,
-                      }}
-                    >
-                      {tag}
-                    </span>
-                  )
-                )}
+                {heroTags.map((tag) => (
+                  <span
+                    key={tag}
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: 999,
+                      background: "#eef4ff",
+                      border: "1px solid #cfe0ff",
+                      color: "#334155",
+                      fontSize: 14,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -137,19 +160,14 @@ export default function HomePage() {
                   marginBottom: 14,
                 }}
               >
-                Project overview
+                {t("homeProjectOverview")}
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gap: 14,
-                }}
-              >
-                <InfoRow label="Modules" value="5" />
-                <InfoRow label="Focus" value="Polar codes" />
-                <InfoRow label="Decoder" value="SC" />
-                <InfoRow label="Channel" value="AWGN / BEC" />
+              <div style={{ display: "grid", gap: 14 }}>
+                <InfoRow label={t("homeModules")} value="5" />
+                <InfoRow label={t("homeFocus")} value={t("homePolarCodes")} />
+                <InfoRow label={t("homeDecoder")} value="SC" />
+                <InfoRow label={t("homeChannel")} value="AWGN / BEC" />
               </div>
             </div>
           </div>
@@ -173,8 +191,9 @@ export default function HomePage() {
                 color: "#0f172a",
               }}
             >
-              Explore modules
+              {t("homeExploreModules")}
             </h2>
+
             <p
               style={{
                 margin: "10px 0 0",
@@ -183,7 +202,7 @@ export default function HomePage() {
                 lineHeight: 1.6,
               }}
             >
-              Choose a module to inspect polar code behavior step by step.
+              {t("homeExploreDescription")}
             </p>
           </div>
 
@@ -197,8 +216,8 @@ export default function HomePage() {
             {navItems.map((item) => (
               <HomeCard
                 key={item.path}
-                title={item.label}
-                description={item.description}
+                title={t(item.label)}
+                description={t(item.description)}
                 to={item.path}
               />
             ))}
@@ -229,7 +248,7 @@ export default function HomePage() {
                 color: "#0f172a",
               }}
             >
-              What you can do in this app
+              {t("homeWhatCanDo")}
             </h3>
 
             <div
@@ -239,13 +258,7 @@ export default function HomePage() {
                 gap: 14,
               }}
             >
-              {[
-                "Construct information and frozen bit masks for selected code parameters.",
-                "Visualize encoder stages and inspect the butterfly transformation.",
-                "Follow SC decoding decisions step by step with tree and schedule views.",
-                "Compare BER performance for multiple code lengths against theoretical BPSK.",
-                "Explore the idea of channel polarization on a simple BEC example.",
-              ].map((text) => (
+              {appActions.map((text) => (
                 <div
                   key={text}
                   style={{
@@ -290,17 +303,11 @@ export default function HomePage() {
                 color: "#0f172a",
               }}
             >
-              Suggested workflow
+              {t("homeSuggestedWorkflow")}
             </h3>
 
             <div style={{ marginTop: 18, display: "grid", gap: 14 }}>
-              {[
-                "1. Start with mask construction.",
-                "2. Continue with encoder visualization.",
-                "3. Inspect SC decoder decisions.",
-                "4. Run BER simulations for selected code lengths.",
-                "5. Use channel polarization demo for intuition.",
-              ].map((step) => (
+              {workflowSteps.map((step) => (
                 <div
                   key={step}
                   style={{

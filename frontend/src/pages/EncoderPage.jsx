@@ -5,15 +5,16 @@ import EncoderSidebarControls from "../components/encoder/EncoderSidebarControls
 import EncoderSummary from "../components/encoder/EncoderSummary.jsx";
 import EncoderStagesTable from "../components/encoder/EncoderStagesTable.jsx";
 import ButterflyDiagram from "../components/encoder/ButterflyDiagram.jsx";
-import EncodingExplanation from "../components/encoder/EncodingExplanation.jsx";
 import InfoBox from "../components/common/InfoBox.jsx";
 import { useEncoder } from "../hooks/useEncoder.js";
 import BackButton from "../components/common/BackButton.jsx";
 import GeneratorMatrix from "../components/encoder/GeneratorMatrix.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function EncoderPage() {
   const { result, loading, error, encode } = useEncoder();
   const [visibleStage, setVisibleStage] = useState(0);
+  const { t } = useLanguage();
 
   const handleSubmit = useCallback(
     (payload) => {
@@ -40,15 +41,11 @@ export default function EncoderPage() {
       <BackButton />
 
       <PageTitle
-        title="Encoder – krok za krokom"
-        description="Táto časť ukazuje, ako sa informačné bity vložia do u-vektora a ako sa následne cez polárnu transformáciu vytvorí výsledné kódové slovo."
+        title={t("encoderPageTitle")}
+        description={t("encoderPageDescription")}
       />
 
-      {error && (
-        <div style={errorStyle}>
-          {error}
-        </div>
-      )}
+      {error && <div style={errorStyle}>{error}</div>}
 
       {result && (
         <div style={{ display: "grid", gap: 34 }}>
@@ -65,7 +62,7 @@ export default function EncoderPage() {
                 marginBottom: 12,
               }}
             >
-              Zobraziť do stage
+              {t("showUntilStage")}
             </div>
 
             <div style={sliderControlsStyle}>
@@ -81,7 +78,7 @@ export default function EncoderPage() {
                   cursor: visibleStage === 0 ? "not-allowed" : "pointer",
                 }}
               >
-                ← Back
+                ← {t("back")}
               </button>
 
               <input
@@ -106,7 +103,7 @@ export default function EncoderPage() {
                   cursor: visibleStage === maxStage ? "not-allowed" : "pointer",
                 }}
               >
-                Next →
+                {t("next")} →
               </button>
             </div>
 
@@ -128,14 +125,11 @@ export default function EncoderPage() {
           <ButterflyDiagram result={result} visibleStage={visibleStage} />
           <GeneratorMatrix N={result?.N} />
 
-          <InfoBox>
-            OK: posledný stage sa zhoduje s kódovým slovom c.
-          </InfoBox>
+          <InfoBox>{t("encoderOkMessage")}</InfoBox>
 
           <hr style={dividerStyle} />
 
           <EncoderStagesTable result={result} />
-
         </div>
       )}
     </AppShell>

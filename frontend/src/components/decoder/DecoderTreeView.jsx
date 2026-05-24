@@ -1,6 +1,9 @@
 import React from "react";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
+  const { t } = useLanguage();
+
   if (!steps.length) return null;
 
   const leafSteps = steps.filter((step) => step.step_type === "leaf_decision");
@@ -10,22 +13,24 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
   const visibleSteps = steps.slice(0, visibleStep);
   const currentStep = visibleStep > 0 ? steps[visibleStep - 1] : null;
 
-  const processedRanges = visibleSteps.map((step) => {
-    if (step.step_type === "leaf_decision") {
-      const index = step.bit_index;
-      return { start: index, end: index, type: "leaf" };
-    }
+  const processedRanges = visibleSteps
+    .map((step) => {
+      if (step.step_type === "leaf_decision") {
+        const index = step.bit_index;
+        return { start: index, end: index, type: "leaf" };
+      }
 
-    if (step.step_type === "combine") {
-      return {
-        start: step.offset,
-        end: step.offset + step.size - 1,
-        type: "combine",
-      };
-    }
+      if (step.step_type === "combine") {
+        return {
+          start: step.offset,
+          end: step.offset + step.size - 1,
+          type: "combine",
+        };
+      }
 
-    return null;
-  }).filter(Boolean);
+      return null;
+    })
+    .filter(Boolean);
 
   const width = 1000;
   const height = Math.max(360, N * 56);
@@ -184,7 +189,7 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
   return (
     <div>
       <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 30 }}>
-        SC dekódovanie – vizualizácia krokov (strom)
+        {t("decoderTreeTitle")}
       </h2>
 
       <div
@@ -216,13 +221,7 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
                 y1={edge.from.y}
                 x2={edge.to.x}
                 y2={edge.to.y}
-                stroke={
-                  current
-                    ? "#ec4899"
-                    : processed
-                      ? "#111827"
-                      : "#d1d5db"
-                }
+                stroke={current ? "#ec4899" : processed ? "#111827" : "#d1d5db"}
                 strokeWidth={current ? 4.5 : processed ? 3.2 : 2}
                 strokeLinecap="round"
               />
@@ -239,13 +238,7 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
                 cx={node.x}
                 cy={node.y}
                 r={current ? 8 : 5.5}
-                fill={
-                  current
-                    ? "#ec4899"
-                    : processed
-                      ? "#111827"
-                      : "#cbd5e1"
-                }
+                fill={current ? "#ec4899" : processed ? "#111827" : "#cbd5e1"}
               />
             );
           })}
@@ -268,13 +261,7 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
                   textAnchor="middle"
                   fontSize="16"
                   fontWeight="700"
-                  fill={
-                    current
-                      ? "#ec4899"
-                      : processed
-                        ? "#111827"
-                        : "#94a3b8"
-                  }
+                  fill={current ? "#ec4899" : processed ? "#111827" : "#94a3b8"}
                 >
                   {step.role === "frozen" ? "F" : "I"}
                 </text>
@@ -284,13 +271,7 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
                   y={pos.y + 6}
                   fontSize="18"
                   fontWeight="700"
-                  fill={
-                    current
-                      ? "#ec4899"
-                      : processed
-                        ? "#111827"
-                        : "#94a3b8"
-                  }
+                  fill={current ? "#ec4899" : processed ? "#111827" : "#94a3b8"}
                 >
                   {processed ? step.decision ?? "" : ""}
                 </text>
@@ -340,7 +321,7 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
             textAnchor="middle"
             transform={`rotate(-90, 38, ${height / 2})`}
           >
-            Index bitu (listy)
+            {t("bitIndexLeaves")}
           </text>
 
           <text
@@ -350,7 +331,7 @@ export default function DecoderTreeView({ steps = [], visibleStep = 0 }) {
             fill="#374151"
             textAnchor="middle"
           >
-            Úroveň stromu (depth)
+            {t("treeDepth")}
           </text>
         </svg>
       </div>

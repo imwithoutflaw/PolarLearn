@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import ControlGroup from "../common/ControlGroup.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 const N_OPTIONS = [8, 16, 32, 64, 128];
 const R_OPTIONS = [0.25, 0.5, 0.75];
@@ -21,7 +22,8 @@ export default function BerSidebarControls({ onSubmit, loading }) {
   const [ebn0Step, setEbn0Step] = useState(0.5);
   const [bitsTarget, setBitsTarget] = useState(100000);
   const [minErrPlot, setMinErrPlot] = useState(30);
-  
+  const { t } = useLanguage();
+
   const codesPreview = useMemo(() => {
     return NList.map((N) => {
       const K = Math.max(1, Math.min(N - 1, Math.round(N * R)));
@@ -64,7 +66,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
 
   return (
     <div style={{ width: "100%", overflow: "hidden" }}>
-      <ControlGroup title="Vyber dĺžky kódu N">
+      <ControlGroup title={t("selectCodeLengthsN")}>
         <div style={chipsContainer}>
           {N_OPTIONS.map((value) => {
             const active = NList.includes(value);
@@ -85,7 +87,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         </div>
       </ControlGroup>
 
-      <ControlGroup title="Kódový pomer R">
+      <ControlGroup title={t("codeRateR")}>
         <select
           value={R}
           onChange={(e) => setR(Number(e.target.value))}
@@ -99,7 +101,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         </select>
       </ControlGroup>
 
-      <ControlGroup title="Design Eb/N0 (dB)">
+      <ControlGroup title={t("designEbN0")}>
         <input
           type="number"
           min="0"
@@ -111,7 +113,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         />
       </ControlGroup>
 
-      <ControlGroup title="Eb/N0 od (dB)">
+      <ControlGroup title={t("ebn0From")}>
         <input
           type="number"
           min="0"
@@ -123,7 +125,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         />
       </ControlGroup>
 
-      <ControlGroup title="Eb/N0 do (dB)">
+      <ControlGroup title={t("ebn0To")}>
         <input
           type="number"
           min="0"
@@ -135,7 +137,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         />
       </ControlGroup>
 
-      <ControlGroup title="Krok Eb/N0">
+      <ControlGroup title={t("ebn0Step")}>
         <input
           type="number"
           min="0.25"
@@ -147,7 +149,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         />
       </ControlGroup>
 
-      <ControlGroup title="Počet prenesených bitov">
+      <ControlGroup title={t("transmittedBitsCount")}>
         <input
           type="number"
           min="1000"
@@ -158,7 +160,7 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         />
       </ControlGroup>
 
-      <ControlGroup title="Min. počet chýb pre vykreslenie bodu">
+      <ControlGroup title={t("minErrorsForPlot")}>
         <input
           type="number"
           min="1"
@@ -175,11 +177,11 @@ export default function BerSidebarControls({ onSubmit, loading }) {
         disabled={loading}
         style={buttonStyle}
       >
-        {loading ? "Počítam..." : "Spustiť simuláciu"}
+        {loading ? t("calculating") : t("runSimulation")}
       </button>
 
       <div style={previewBox}>
-        <div style={previewTitle}>Preview konfigurácií</div>
+        <div style={previewTitle}>{t("configurationPreview")}</div>
         <div style={previewList}>
           {codesPreview.map((item) => (
             <div key={item.N}>

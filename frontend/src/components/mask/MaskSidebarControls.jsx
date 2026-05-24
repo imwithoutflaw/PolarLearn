@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ControlGroup from "../common/ControlGroup.jsx";
 import SidebarPanelTitle from "../common/SidebarPanelTitle.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 const N_OPTIONS = [8, 16, 32, 64];
 const R_OPTIONS = [0.25, 0.5, 0.75];
@@ -10,6 +11,7 @@ export default function MaskSidebarControls({ onSubmit, loading }) {
   const [R, setR] = useState(0.5);
   const [designEbN0, setDesignEbN0] = useState(2.0);
   const initializedRef = useRef(false);
+  const { t } = useLanguage();
 
   const K = useMemo(() => {
     let value = Math.round(N * R);
@@ -40,9 +42,9 @@ export default function MaskSidebarControls({ onSubmit, loading }) {
 
   return (
     <div>
-      <SidebarPanelTitle>Parametre kódu</SidebarPanelTitle>
+      <SidebarPanelTitle>{t("codeParameters")}</SidebarPanelTitle>
 
-      <ControlGroup title="Dĺžka kódu N">
+      <ControlGroup title={t("codeLengthN")}>
         <select
           value={N}
           onChange={(e) => setN(Number(e.target.value))}
@@ -56,7 +58,7 @@ export default function MaskSidebarControls({ onSubmit, loading }) {
         </select>
       </ControlGroup>
 
-      <ControlGroup title="Kódový pomer R">
+      <ControlGroup title={t("codeRateR")}>
         <select
           value={R}
           onChange={(e) => setR(Number(e.target.value))}
@@ -70,7 +72,7 @@ export default function MaskSidebarControls({ onSubmit, loading }) {
         </select>
       </ControlGroup>
 
-      <ControlGroup title="Návrhové Eb/N0 (dB)">
+      <ControlGroup title={t("designEbN0")}>
         <input
           type="range"
           min="0"
@@ -111,7 +113,7 @@ export default function MaskSidebarControls({ onSubmit, loading }) {
 
       {loading && (
         <div style={{ marginTop: 16, color: "#6b7280", fontSize: 15 }}>
-          Počítam masku...
+          {t("calculatingMask")}
         </div>
       )}
     </div>

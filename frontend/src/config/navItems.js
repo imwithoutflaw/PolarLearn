@@ -1,27 +1,27 @@
 export const navItems = [
   {
-    label: "Konštrukcia masky",
+    label: "mask",
     path: "/mask",
-    description: "Návrh informačných a frozen bitov",
+    description: "maskDesc",
   },
   {
-    label: "Encoder",
+    label: "encoder",
     path: "/encoder",
-    description: "Polárne kódovanie krok za krokom",
+    description: "encoderDesc",
   },
   {
-    label: "Decoder SC",
+    label: "decoder",
     path: "/decoder",
-    description: "SC dekódovanie a rozhodnutia",
+    description: "decoderDesc",
   },
   {
-    label: "BER simulacia",
+    label: "ber",
     path: "/ber",
-    description: "Simulácia bitovej chybovosti",
+    description: "berDesc",
   },
   {
-    label: "Channel polarization",
+    label: "polarization",
     path: "/polarization",
-    description: "Vizualizácia polarizácie kanálov",
+    description: "polarizationDesc",
   },
 ];

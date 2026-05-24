@@ -1,8 +1,10 @@
 import React from "react";
 import InfoBox from "../common/InfoBox.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function MaskSummary({ result }) {
   if (!result) return null;
+  const { t } = useLanguage();
 
   const K = result.K ?? result.info_positions.length;
   const frozenCount = result.frozen_positions.length;
@@ -10,9 +12,7 @@ export default function MaskSummary({ result }) {
   return (
     <>
       <InfoBox>
-        Na základe zvolenej dĺžky kódu N, kódového pomeru R a návrhovej hodnoty Eb/N0
-        sa vytvorí maska informačných a frozen bitov. Spoľahlivejšie podkanály sú
-        použité na prenos informačných bitov.
+        {t("maskSummaryInfo")}
       </InfoBox>
 
       <div style={{ marginTop: 28 }}>
@@ -24,7 +24,7 @@ export default function MaskSummary({ result }) {
             marginBottom: 14,
           }}
         >
-          Zvolené parametre:
+          {t("selectedParameters")}
         </div>
 
         <ul
@@ -39,7 +39,10 @@ export default function MaskSummary({ result }) {
           <li>N = {result.N}</li>
           <li>K = {K}</li>
           <li>R = {(K / result.N).toFixed(2)}</li>
-          <li>návrhové Eb/N0 = {Number(result.design_ebn0_db).toFixed(2)} dB</li>
+          <li>
+            {t("designEbN0Label")} ={" "}
+            {Number(result.design_ebn0_db).toFixed(2)} dB
+          </li>
         </ul>
       </div>
     </>

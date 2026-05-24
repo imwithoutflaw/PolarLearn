@@ -1,6 +1,9 @@
 import React from "react";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function BerInterpretation() {
+  const { t } = useLanguage();
+
   return (
     <div
       style={{
@@ -13,9 +16,7 @@ export default function BerInterpretation() {
         lineHeight: 1.8,
       }}
     >
-      So zvyšujúcou sa hodnotou Eb/N0 chybovosť klesá. Pri väčších hodnotách N
-      sa zvyčajne prejavuje lepší výkon polárneho kódu. Porovnanie s
-      nekódovaným BPSK ukazuje prínos kódovania pri vhodných parametroch.
+      {t("berInterpretationText")}
     </div>
   );
 }

@@ -1,12 +1,15 @@
 import React from "react";
 import SectionTitle from "../common/SectionTitle.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function DecisionLogTable({ steps }) {
+  const { t } = useLanguage();
+
   if (!steps || steps.length === 0) return null;
 
   return (
     <div>
-      <SectionTitle>Tabuľka krokov (log)</SectionTitle>
+      <SectionTitle>{t("decisionLogTitle")}</SectionTitle>
 
       <div
         style={{
@@ -19,13 +22,14 @@ export default function DecisionLogTable({ steps }) {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={thStyle}>Step</th>
-              <th style={thStyle}>Index</th>
-              <th style={thStyle}>Type</th>
+              <th style={thStyle}>{t("step")}</th>
+              <th style={thStyle}>{t("tableIndex")}</th>
+              <th style={thStyle}>{t("tableType")}</th>
               <th style={thStyle}>LLR</th>
-              <th style={thStyle}>Decision</th>
+              <th style={thStyle}>{t("decision")}</th>
             </tr>
           </thead>
+
           <tbody>
             {steps.map((step, index) => {
               const bitIndex =
@@ -52,11 +56,17 @@ export default function DecisionLogTable({ steps }) {
               return (
                 <tr key={index}>
                   <td style={tdStyle}>{index + 1}</td>
+
                   <td style={tdStyle}>{bitIndex}</td>
+
                   <td style={tdStyle}>{type}</td>
+
                   <td style={tdStyle}>
-                    {typeof llr === "number" ? llr.toFixed(4) : llr}
+                    {typeof llr === "number"
+                      ? llr.toFixed(4)
+                      : llr}
                   </td>
+
                   <td style={tdStyle}>{decision}</td>
                 </tr>
               );

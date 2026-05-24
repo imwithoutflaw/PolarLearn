@@ -1,19 +1,24 @@
 import React from "react";
 import SectionTitle from "../common/SectionTitle.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function MaskTable({ result }) {
   if (!result) return null;
+
+  const { t } = useLanguage();
 
   const infoSet = new Set(result.info_positions);
 
   const rows = Array.from({ length: result.N }, (_, index) => ({
     index,
-    type: infoSet.has(index) ? "info" : "frozen",
+    type: infoSet.has(index)
+      ? t("infoType")
+      : t("frozenType"),
   }));
 
   return (
     <div>
-      <SectionTitle>Tabuľka všetkých pozícií</SectionTitle>
+      <SectionTitle>{t("maskTableTitle")}</SectionTitle>
 
       <div
         style={{
@@ -26,8 +31,8 @@ export default function MaskTable({ result }) {
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={thStyle}>Index</th>
-              <th style={thStyle}>Typ</th>
+              <th style={thStyle}>{t("index")}</th>
+              <th style={thStyle}>{t("type")}</th>
             </tr>
           </thead>
           <tbody>

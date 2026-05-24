@@ -9,8 +9,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
-function buildChartData(result) {
+function buildChartData(result, t) {
   if (!result) return [];
 
   const sortedEbn0 = [...result.ebn0_points_db].sort((a, b) => a - b);
@@ -27,7 +28,8 @@ function buildChartData(result) {
     const theoryPoint = result.theoretical_uncoded_bpsk.find(
       (item) => item.ebn0_db === ebn0
     );
-    row["Teoretická BER (nekódovaný BPSK)"] = theoryPoint ? theoryPoint.ber : null;
+
+    row[t("theoreticalUncodedBpsk")] = theoryPoint ? theoryPoint.ber : null;
 
     return row;
   });
@@ -48,24 +50,28 @@ function formatYAxis(value) {
   return "";
 }
 
-function formatTooltipValue(value) {
+function formatTooltipValue(value, t) {
   if (value === null || value === undefined) {
-    return "not enough errors";
+    return t("notEnoughErrors");
   }
+
   return Number(value).toExponential(3);
 }
 
 const SERIES_COLORS = ["#1f77b4", "#ff7f0e", "#2ca02c", "#9467bd", "#8c564b"];
 
 export default function BerChart({ result }) {
+  const { t } = useLanguage();
+
   if (!result) return null;
 
-  const data = buildChartData(result);
+  const data = buildChartData(result, t);
+  const theoreticalKey = t("theoreticalUncodedBpsk");
 
   return (
     <>
       <h2 style={{ marginTop: 0, marginBottom: 16, fontSize: 26 }}>
-        BER polárnych kódov pri SC dekódovaní
+        {t("berChartTitle")}
       </h2>
 
       <div style={{ width: "100%", height: 720 }}>
@@ -81,7 +87,11 @@ export default function BerChart({ result }) {
               type="number"
               domain={["dataMin", "dataMax"]}
               tickCount={7}
-              label={{ value: "Eb/N0 (dB)", position: "insideBottom", offset: -10 }}
+              label={{
+                value: "Eb/N0 (dB)",
+                position: "insideBottom",
+                offset: -10,
+              }}
             />
 
             <YAxis
@@ -92,13 +102,14 @@ export default function BerChart({ result }) {
               label={{ value: "BER", angle: -90, position: "insideLeft" }}
             />
 
-            <Tooltip formatter={formatTooltipValue} />
+            <Tooltip formatter={(value) => formatTooltipValue(value, t)} />
+
             <Legend
-               verticalAlign="bottom"
-               align="center"
-               wrapperStyle={{
-                 paddingTop: 25, // 👈 головне — відступ зверху
-                  }}
+              verticalAlign="bottom"
+              align="center"
+              wrapperStyle={{
+                paddingTop: 25,
+              }}
             />
 
             {result.series.map((seriesItem, index) => (
@@ -117,7 +128,7 @@ export default function BerChart({ result }) {
 
             <Line
               type="linear"
-              dataKey="Teoretická BER (nekódovaný BPSK)"
+              dataKey={theoreticalKey}
               stroke="#d62728"
               strokeWidth={3}
               strokeDasharray="6 4"

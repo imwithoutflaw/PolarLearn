@@ -1,8 +1,11 @@
 import React from "react";
 import SectionTitle from "../common/SectionTitle.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function EncoderStagesTable({ result }) {
   if (!result || !result.stages) return null;
+
+  const { t } = useLanguage();
 
   const stages = result.stages;
   const stageCount = stages.length;
@@ -10,7 +13,7 @@ export default function EncoderStagesTable({ result }) {
 
   return (
     <div>
-      <SectionTitle>Hodnoty po jednotlivých stage-och</SectionTitle>
+      <SectionTitle>{t("encoderStagesTitle")}</SectionTitle>
 
       <div
         style={{
@@ -20,21 +23,30 @@ export default function EncoderStagesTable({ result }) {
           background: "#fff",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 900 }}>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            minWidth: 900,
+          }}
+        >
           <thead>
             <tr>
-              <th style={thStyle}>Index bitu</th>
+              <th style={thStyle}>{t("bitIndex")}</th>
+
               {Array.from({ length: stageCount }, (_, stageIndex) => (
                 <th key={stageIndex} style={thStyle}>
-                  Stage {stageIndex}
+                  {t("stage")} {stageIndex}
                 </th>
               ))}
             </tr>
           </thead>
+
           <tbody>
             {Array.from({ length: bitCount }, (_, bitIndex) => (
               <tr key={bitIndex}>
                 <td style={tdStyle}>{bitIndex}</td>
+
                 {Array.from({ length: stageCount }, (_, stageIndex) => (
                   <td key={stageIndex} style={tdStyle}>
                     {stages[stageIndex][bitIndex]}

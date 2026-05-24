@@ -1,4 +1,5 @@
 import React from "react";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 function flattenRows(result) {
   const rows = [];
@@ -18,14 +19,17 @@ function flattenRows(result) {
   return rows;
 }
 
-function formatBer(value) {
+function formatBer(value, t) {
   if (value === null || value === undefined) {
-    return "not enough errors";
+    return t("notEnoughErrors");
   }
+
   return Number(value).toFixed(6);
 }
 
 export default function BerResultsTable({ result }) {
+  const { t } = useLanguage();
+
   if (!result) return null;
 
   const rows = flattenRows(result);
@@ -42,14 +46,21 @@ export default function BerResultsTable({ result }) {
             <th style={thStyle}>BER</th>
           </tr>
         </thead>
+
         <tbody>
           {rows.map((row, index) => (
             <tr key={`${row.N}-${row.K}-${row.ebn0}-${index}`}>
               <td style={tdStyle}>{row.N}</td>
+
               <td style={tdStyle}>{row.K}</td>
+
               <td style={tdStyle}>{row.R}</td>
+
               <td style={tdStyle}>{row.ebn0}</td>
-              <td style={tdStyle}>{formatBer(row.ber)}</td>
+
+              <td style={tdStyle}>
+                {formatBer(row.ber, t)}
+              </td>
             </tr>
           ))}
         </tbody>

@@ -1,15 +1,15 @@
 import React from "react";
 import InfoBox from "../common/InfoBox.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function EncoderSummary({ result }) {
   if (!result) return null;
 
+  const { t } = useLanguage();
+
   return (
     <div style={{ display: "grid", gap: 24 }}>
-      <InfoBox>
-        Informačné bity sa najprv vložia na spoľahlivé pozície u-vektora a potom sa
-        vykoná polárna transformácia po jednotlivých stage-och až po výsledné kódové slovo.
-      </InfoBox>
+      <InfoBox>{t("encoderSummaryInfo")}</InfoBox>
 
       <div
         style={{
@@ -19,12 +19,12 @@ export default function EncoderSummary({ result }) {
         }}
       >
         <div style={boxStyle}>
-          <div style={labelStyle}>u (s vloženými frozen bitmi):</div>
+          <div style={labelStyle}>{t("uVectorWithFrozen")}:</div>
           <div style={monoStyle}>{result.u_vector.join(" ")}</div>
         </div>
 
         <div style={boxStyle}>
-          <div style={labelStyle}>kódové slovo c:</div>
+          <div style={labelStyle}>{t("codewordC")}:</div>
           <div style={monoStyle}>{result.codeword.join(" ")}</div>
         </div>
       </div>

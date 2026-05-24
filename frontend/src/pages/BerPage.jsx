@@ -8,11 +8,12 @@ import BerChart from "../components/ber/BerChart.jsx";
 import BerInterpretation from "../components/ber/BerInterpretation.jsx";
 import BerResultsTable from "../components/ber/BerResultsTable.jsx";
 import { useBer } from "../hooks/useBer.js";
-import { useNavigate } from "react-router-dom";
 import BackButton from "../components/common/BackButton.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function BerPage() {
   const { result, loading, error, runComparison } = useBer();
+  const { t } = useLanguage();
 
   const handleSubmit = (payload) => {
     if (!payload) return;
@@ -20,18 +21,18 @@ export default function BerPage() {
   };
 
   const sidebarControls = (
-    <SidebarSection title="Parametre simulácie">
+    <SidebarSection title={t("simulationParameters")}>
       <BerSidebarControls onSubmit={handleSubmit} loading={loading} />
     </SidebarSection>
   );
-  const navigate = useNavigate();
 
   return (
     <AppShell sidebarControls={sidebarControls}>
-         <BackButton />
+      <BackButton />
+
       <PageTitle
-        title="BER simulácia polárnych kódov"
-        description="Táto časť umožňuje simulovať bitovú chybovosť (BER) polárnych kódov pri SC dekódovaní na AWGN kanáli a porovnať výsledok s teoretickou BER nekódovaného BPSK prenosu."
+        title={t("berPageTitle")}
+        description={t("berPageDescription")}
       />
 
       {loading && (
@@ -56,20 +57,20 @@ export default function BerPage() {
           </div>
 
           <div style={{ fontSize: 18, color: "#444" }}>
-            Simulácia prebieha...
+            {t("simulationRunning")}
           </div>
         </div>
       )}
 
       {!loading && result && (
         <div style={{ fontSize: 18, color: "#444", marginBottom: 22 }}>
-          Simulácia dokončená.
+          {t("simulationFinished")}
         </div>
       )}
 
       {!loading && !result && !error && (
         <div style={{ fontSize: 18, color: "#666", marginBottom: 22 }}>
-          Nastav parametre simulácie vľavo a klikni na „Spustiť simuláciu“.
+          {t("simulationHint")}
         </div>
       )}
 
@@ -95,11 +96,11 @@ export default function BerPage() {
             <BerChart result={result} />
           </SectionCard>
 
-          <SectionCard title="Tabuľka výsledkov">
+          <SectionCard title={t("resultsTable")}>
             <BerResultsTable result={result} />
           </SectionCard>
 
-          <SectionCard title="Stručné zhodnotenie">
+          <SectionCard title={t("shortEvaluation")}>
             <BerInterpretation result={result} />
           </SectionCard>
         </div>

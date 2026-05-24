@@ -8,10 +8,12 @@ import DecisionLogTable from "../components/decoder/DecisionLogTable.jsx";
 import DecoderTreeView from "../components/decoder/DecoderTreeView.jsx";
 import { useDecoder } from "../hooks/useDecoder.js";
 import BackButton from "../components/common/BackButton.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function DecoderPage() {
   const { result, loading, error, decode } = useDecoder();
   const [visibleStep, setVisibleStep] = useState(0);
+  const { t } = useLanguage();
 
   const handleSubmit = useCallback(
     (payload) => {
@@ -35,8 +37,7 @@ export default function DecoderPage() {
     setVisibleStep(maxStep);
   }, [maxStep]);
 
-  const currentStep =
-    visibleStep > 0 ? visualSteps[visibleStep - 1] : null;
+  const currentStep = visibleStep > 0 ? visualSteps[visibleStep - 1] : null;
 
   return (
     <AppShell
@@ -47,8 +48,8 @@ export default function DecoderPage() {
       <BackButton />
 
       <PageTitle
-        title="SC dekódovanie – krok za krokom"
-        description="Táto časť ukazuje, ako prebieha successive cancellation decoding krok po kroku."
+        title={t("decoderPageTitle")}
+        description={t("decoderPageDescription")}
       />
 
       {error && <div style={errorStyle}>{error}</div>}
@@ -58,18 +59,15 @@ export default function DecoderPage() {
           <DecoderSummary result={result} />
 
           <div>
-            <div style={sectionTitle}>Vizualizácia dekódovania</div>
+            <div style={sectionTitle}>{t("decoderVisualizationTitle")}</div>
 
             <div style={noteStyle}>
-              Jeden krok v tejto vizualizácii predstavuje rozhodnutie jedného
-              bitu alebo combine operáciu. Pri rozhodnutí bitu sa zvýrazní celá
-              cesta v SC strome k príslušnému listu, pretože dekodér musí prejsť
-              viacerými úrovňami stromu.
+              {t("decoderVisualizationNote")}
             </div>
           </div>
 
           <div>
-            <div style={sectionTitle}>Zobraziť kroky do:</div>
+            <div style={sectionTitle}>{t("showStepsUntil")}</div>
 
             <div style={sliderControlsStyle}>
               <button
@@ -81,7 +79,7 @@ export default function DecoderPage() {
                   opacity: visibleStep === 0 ? 0.5 : 1,
                 }}
               >
-                ← Back
+                ← {t("back")}
               </button>
 
               <input
@@ -105,7 +103,7 @@ export default function DecoderPage() {
                   opacity: visibleStep === maxStep ? 0.5 : 1,
                 }}
               >
-                Next →
+                {t("next")} →
               </button>
             </div>
 

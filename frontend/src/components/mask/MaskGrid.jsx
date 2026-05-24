@@ -1,14 +1,17 @@
 import React from "react";
 import SectionTitle from "../common/SectionTitle.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function MaskGrid({ result }) {
   if (!result) return null;
+
+  const { t } = useLanguage();
 
   const mask = result.mask || [];
 
   return (
     <div style={{ minWidth: 0, maxWidth: "100%" }}>
-      <SectionTitle>Vizualizácia masky</SectionTitle>
+      <SectionTitle>{t("maskVisualization")}</SectionTitle>
 
       <div
         style={{
@@ -67,7 +70,7 @@ export default function MaskGrid({ result }) {
           overflowWrap: "anywhere",
         }}
       >
-        Hodnota 1 predstavuje informačný bit, hodnota 0 predstavuje frozen bit.
+        {t("maskVisualizationDescription")}
       </div>
     </div>
   );

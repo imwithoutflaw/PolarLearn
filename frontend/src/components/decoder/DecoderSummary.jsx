@@ -1,7 +1,10 @@
 import React from "react";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function DecoderSummary({ result }) {
   if (!result) return null;
+
+  const { t } = useLanguage();
 
   const originalBits = result.original_bits || [];
   const codeword = result.codeword || [];
@@ -23,14 +26,14 @@ export default function DecoderSummary({ result }) {
         }}
       >
         <div style={boxStyle}>
-          <div style={labelStyle}>Pôvodná správa:</div>
+          <div style={labelStyle}>{t("originalMessage")}:</div>
           <div style={monoStyle}>
             {originalBits.length ? originalBits.join(" ") : "—"}
           </div>
         </div>
 
         <div style={boxStyle}>
-          <div style={labelStyle}>Zakódované slovo c:</div>
+          <div style={labelStyle}>{t("encodedCodeword")}:</div>
           <div style={monoStyle}>
             {codeword.length ? codeword.join(" ") : "—"}
           </div>
@@ -45,12 +48,12 @@ export default function DecoderSummary({ result }) {
         }}
       >
         <div style={boxStyle}>
-          <div style={labelStyle}>Výsledok u_hat:</div>
+          <div style={labelStyle}>{t("uHatResult")}:</div>
           <div style={monoStyle}>{uHat.join(" ")}</div>
         </div>
 
         <div style={boxStyle}>
-          <div style={labelStyle}>Odhad správy msg_hat:</div>
+          <div style={labelStyle}>{t("msgHatEstimate")}:</div>
           <div style={monoStyle}>{msgHat.join(" ")}</div>
         </div>
 
@@ -61,7 +64,7 @@ export default function DecoderSummary({ result }) {
             border: `1px solid ${isOk ? "#b7dfb9" : "#f0b6b1"}`,
           }}
         >
-          <div style={labelStyle}>Porovnanie:</div>
+          <div style={labelStyle}>{t("comparison")}:</div>
           <div
             style={{
               fontSize: 18,
@@ -69,7 +72,7 @@ export default function DecoderSummary({ result }) {
               color: isOk ? "#2f7d32" : "#b42318",
             }}
           >
-            {isOk ? "Dekódovanie OK ✅" : "Dekódovanie NESEDÍ ❌"}
+            {isOk ? t("decodingOk") : t("decodingMismatch")}
           </div>
         </div>
       </div>

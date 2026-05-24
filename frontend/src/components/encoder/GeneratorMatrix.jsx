@@ -1,5 +1,6 @@
 import React from "react";
 import SectionTitle from "../common/SectionTitle.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 function kroneckerProduct(A, B) {
   const result = [];
@@ -40,6 +41,8 @@ function buildGeneratorMatrix(N) {
 export default function GeneratorMatrix({ N }) {
   if (!N) return null;
 
+  const { t } = useLanguage();
+
   const G = buildGeneratorMatrix(N);
   const n = Math.log2(N);
 
@@ -48,24 +51,24 @@ export default function GeneratorMatrix({ N }) {
 
   return (
     <div>
-      <SectionTitle>Generátorová matica G</SectionTitle>
+      <SectionTitle>{t("generatorMatrixTitle")}</SectionTitle>
 
       <div style={textStyle}>
-        Kódovanie polárneho kódu je možné zapísať aj maticovo ako{" "}
-        <strong>c = u · G</strong>, kde <strong>G = F⊗n</strong>. Matica G
-        vzniká Kroneckerovým súčinom základnej matice F.
+        {t("generatorMatrixDescriptionPart1")}{" "}
+        <strong>c = u · G</strong>, {t("where")}{" "}
+        <strong>G = F⊗n</strong>. {t("generatorMatrixDescriptionPart2")}
       </div>
 
       <div style={layoutStyle}>
         <div style={infoBoxStyle}>
           <div style={{ fontWeight: 800, marginBottom: 8 }}>
-            Základná matica
+            {t("baseMatrix")}
           </div>
 
           <div style={monoStyle}>F = [[1, 0], [1, 1]]</div>
 
           <div style={{ marginTop: 12 }}>
-            Pre aktuálne <strong>N = {N}</strong> platí:
+            {t("forCurrent")} <strong>N = {N}</strong> {t("holds")}:
             <br />
             <strong>
               G{N} = F⊗{n}

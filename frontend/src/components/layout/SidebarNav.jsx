@@ -1,9 +1,12 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { navItems } from "../../config/navItems.js";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function SidebarNav() {
-  return (
+    const { t } = useLanguage();
+
+    return (
     <nav>
       <div
         style={{
@@ -15,7 +18,7 @@ export default function SidebarNav() {
           fontWeight: 700,
         }}
       >
-        Moduly
+        {t("modules")}
       </div>
 
       <div style={{ display: "grid", gap: 8 }}>
@@ -34,7 +37,7 @@ export default function SidebarNav() {
               fontSize: 15,
             })}
           >
-            {item.label}
+            {t(item.label)}
           </NavLink>
         ))}
       </div>

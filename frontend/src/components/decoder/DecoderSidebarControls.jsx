@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import ControlGroup from "../common/ControlGroup.jsx";
 import SidebarPanelTitle from "../common/SidebarPanelTitle.jsx";
 import { constructMask } from "../../api/maskApi.js";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 const N_OPTIONS = [8, 16, 32, 64];
 const R_OPTIONS = [0.25, 0.5, 0.75];
@@ -94,6 +95,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
   const [llr, setLlr] = useState(buildLlr(8));
   const [mask, setMask] = useState(buildMask(8, 4));
   const initializedRef = useRef(false);
+  const { t } = useLanguage();
 
   const K = useMemo(() => {
     let value = Math.round(N * R);
@@ -169,9 +171,9 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
 
   return (
     <div>
-      <SidebarPanelTitle>Parametre</SidebarPanelTitle>
+      <SidebarPanelTitle>{t("parameters")}</SidebarPanelTitle>
 
-      <ControlGroup title="Dĺžka kódu N">
+      <ControlGroup title={t("codeLengthN")}>
         <select
           value={N}
           onChange={(e) => setN(Number(e.target.value))}
@@ -185,7 +187,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
         </select>
       </ControlGroup>
 
-      <ControlGroup title="Kódový pomer R">
+      <ControlGroup title={t("codeRateR")}>
         <select
           value={R}
           onChange={(e) => setR(Number(e.target.value))}
@@ -199,7 +201,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
         </select>
       </ControlGroup>
 
-      <ControlGroup title="Návrhové Eb/N0 pre masku (dB)">
+      <ControlGroup title={t("designEbN0ForMask")}>
         <input
           type="range"
           min="0"
@@ -212,14 +214,14 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
         <div style={sliderValueStyle}>{designEbN0Mask.toFixed(2)}</div>
       </ControlGroup>
 
-      <ControlGroup title="Režim masky">
+      <ControlGroup title={t("maskMode")}>
         <label style={radioRowStyle}>
           <input
             type="radio"
             checked={maskMode === "auto"}
             onChange={() => setMaskMode("auto")}
           />
-          <span>Automatická maska</span>
+          <span>{t("automaticMask")}</span>
         </label>
 
         <label style={radioRowStyle}>
@@ -228,11 +230,11 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
             checked={maskMode === "manual"}
             onChange={() => setMaskMode("manual")}
           />
-          <span>Ručná maska</span>
+          <span>{t("manualMask")}</span>
         </label>
       </ControlGroup>
 
-      <ControlGroup title="Eb/N0 kanála (dB)">
+      <ControlGroup title={t("channelEbN0")}>
         <input
           type="range"
           min="0"
@@ -245,14 +247,14 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
         <div style={sliderValueStyle}>{channelEbN0.toFixed(2)}</div>
       </ControlGroup>
 
-      <ControlGroup title="Režim kanála">
+      <ControlGroup title={t("channelMode")}>
         <label style={radioRowStyle}>
           <input
             type="radio"
             checked={channelMode === "ideal"}
             onChange={() => setChannelMode("ideal")}
           />
-          <span>Bez šumu (ideálne)</span>
+          <span>{t("idealNoNoise")}</span>
         </label>
 
         <label style={radioRowStyle}>
@@ -261,11 +263,11 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
             checked={channelMode === "awgn"}
             onChange={() => setChannelMode("awgn")}
           />
-          <span>AWGN (so šumom)</span>
+          <span>{t("awgnWithNoise")}</span>
         </label>
       </ControlGroup>
 
-      <ControlGroup title={`LLR (${N} hodnôt, oddelené čiarkou)`}>
+      <ControlGroup title={`LLR (${N} ${t("valuesCommaSeparated")})`}>
         <textarea
           value={llr}
           onChange={(e) => setLlr(e.target.value)}
@@ -275,7 +277,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
         />
       </ControlGroup>
 
-      <ControlGroup title={`Mask (${N} hodnôt 0/1)`}>
+      <ControlGroup title={`Mask (${N} ${t("values01")})`}>
         <textarea
           value={mask}
           onChange={(e) => setMask(e.target.value)}
@@ -291,7 +293,7 @@ export default function DecoderSidebarControls({ onSubmit, loading }) {
         disabled={loading}
         style={buttonStyle}
       >
-        {loading ? "Počítam..." : "Spustiť dekódovanie"}
+        {loading ? t("calculating") : t("runDecoding")}
       </button>
     </div>
   );

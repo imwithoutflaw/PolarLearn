@@ -5,8 +5,8 @@ import SidebarPanelTitle from "../components/common/SidebarPanelTitle.jsx";
 import ControlGroup from "../components/common/ControlGroup.jsx";
 import SectionTitle from "../components/common/SectionTitle.jsx";
 import InfoBox from "../components/common/InfoBox.jsx";
-import { useNavigate } from "react-router-dom";
 import BackButton from "../components/common/BackButton.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 
 function becPolarizationStep(values) {
   const next = [];
@@ -32,11 +32,14 @@ function becPolarizationLevels(epsilon, n) {
   return levels;
 }
 
-function buildNaturalRows(finalValues) {
+function buildNaturalRows(finalValues, t) {
   return finalValues.map((value, index) => ({
     index,
     epsilon: value,
-    type: value < 0.5 ? "lepší / spoľahlivejší" : "horší / menej spoľahlivý",
+    type:
+      value < 0.5
+        ? t("betterReliable")
+        : t("worseLessReliable"),
   }));
 }
 
@@ -61,7 +64,6 @@ function LineChartCard({
   values,
   xLabel,
   yLabel,
-  sorted = false,
   normalizedX = false,
   height = 360,
 }) {
@@ -72,7 +74,9 @@ function LineChartCard({
 
   const points = values.map((value, index) => {
     const xValue = normalizedX
-      ? (values.length === 1 ? 0 : index / (values.length - 1))
+      ? values.length === 1
+        ? 0
+        : index / (values.length - 1)
       : index;
 
     return { xValue, yValue: value };
@@ -101,26 +105,9 @@ function LineChartCard({
 
   return (
     <div>
-      <div
-        style={{
-          fontSize: 18,
-          fontWeight: 800,
-          color: "#374151",
-          marginBottom: 14,
-        }}
-      >
-        {title}
-      </div>
+      <div style={chartTitleStyle}>{title}</div>
 
-      <div
-        style={{
-          border: "1px solid #e5e7eb",
-          borderRadius: 18,
-          background: "#fff",
-          padding: 14,
-          overflowX: "auto",
-        }}
-      >
+      <div style={chartBoxStyle}>
         <svg width="100%" viewBox={`0 0 ${width} ${height}`}>
           {gridYs.map((tick) => (
             <g key={`gy-${tick}`}>
@@ -231,7 +218,7 @@ function LineChartCard({
   );
 }
 
-function HistogramCard({ title, bins }) {
+function HistogramCard({ title, bins, t }) {
   const width = 1100;
   const height = 340;
   const padding = { top: 28, right: 28, bottom: 64, left: 84 };
@@ -242,31 +229,13 @@ function HistogramCard({ title, bins }) {
   const barWidth = chartWidth / bins.length;
 
   const toY = (v) => padding.top + (1 - v / maxCount) * chartHeight;
-
   const yTicks = Array.from({ length: maxCount + 1 }, (_, i) => i);
 
   return (
     <div>
-      <div
-        style={{
-          fontSize: 18,
-          fontWeight: 800,
-          color: "#374151",
-          marginBottom: 14,
-        }}
-      >
-        {title}
-      </div>
+      <div style={chartTitleStyle}>{title}</div>
 
-      <div
-        style={{
-          border: "1px solid #e5e7eb",
-          borderRadius: 18,
-          background: "#fff",
-          padding: 14,
-          overflowX: "auto",
-        }}
-      >
+      <div style={chartBoxStyle}>
         <svg width="100%" viewBox={`0 0 ${width} ${height}`}>
           {yTicks.map((tick) => (
             <g key={tick}>
@@ -313,15 +282,14 @@ function HistogramCard({ title, bins }) {
             const y = height - padding.bottom - barH;
 
             return (
-              <g key={bin.label}>
-                <rect
-                  x={x}
-                  y={y}
-                  width={barWidth - 20}
-                  height={barH}
-                  fill="#2f6fb0"
-                />
-              </g>
+              <rect
+                key={bin.label}
+                x={x}
+                y={y}
+                width={barWidth - 20}
+                height={barH}
+                fill="#2f6fb0"
+              />
             );
           })}
 
@@ -332,7 +300,7 @@ function HistogramCard({ title, bins }) {
             fontSize="16"
             fill="#374151"
           >
-            Hodnota ε
+            {t("epsilonValue")}
           </text>
 
           <text
@@ -343,7 +311,7 @@ function HistogramCard({ title, bins }) {
             fill="#374151"
             transform={`rotate(-90 26 ${height / 2})`}
           >
-            Počet podkanálov
+            {t("subchannelCount")}
           </text>
         </svg>
       </div>
@@ -351,39 +319,9 @@ function HistogramCard({ title, bins }) {
   );
 }
 
-function PolarizationTable({ rows }) {
-  return (
-    <div
-      style={{
-        border: "1px solid #e5e7eb",
-        borderRadius: 18,
-        overflow: "hidden",
-        background: "#fff",
-      }}
-    >
-      <table style={{ width: "100%", borderCollapse: "collapse" }}>
-        <thead>
-          <tr>
-            <th style={thStyle}>Index podkanála</th>
-            <th style={thStyle}>ε</th>
-            <th style={thStyle}>Typ kanála</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.index}>
-              <td style={tdStyle}>{row.index}</td>
-              <td style={tdStyle}>{row.epsilon.toFixed(4)}</td>
-              <td style={tdStyle}>{row.type}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 export default function PolarizationPage() {
+  const { t } = useLanguage();
+
   const [epsilon, setEpsilon] = useState(0.5);
   const [n, setN] = useState(4);
   const [showSorted, setShowSorted] = useState(true);
@@ -393,7 +331,7 @@ export default function PolarizationPage() {
     const levels = becPolarizationLevels(epsilon, n);
     const finalValues = levels[levels.length - 1];
     const sortedValues = [...finalValues].sort((a, b) => a - b);
-    const rows = buildNaturalRows(finalValues);
+    const rows = buildNaturalRows(finalValues, t);
     const histogramBins = buildHistogramBins(finalValues, 10);
 
     return {
@@ -402,16 +340,16 @@ export default function PolarizationPage() {
       rows,
       histogramBins,
     };
-  }, [epsilon, n]);
+  }, [epsilon, n, t]);
 
   const goodCount = rows.filter((row) => row.epsilon < 0.5).length;
   const badCount = rows.length - goodCount;
 
   const sidebarControls = (
     <div>
-      <SidebarPanelTitle>Parametre</SidebarPanelTitle>
+      <SidebarPanelTitle>{t("parameters")}</SidebarPanelTitle>
 
-      <ControlGroup title="Pravdepodobnosť vymazania ε">
+      <ControlGroup title={t("erasureProbability")}>
         <input
           type="range"
           min="0.01"
@@ -424,7 +362,7 @@ export default function PolarizationPage() {
         <div style={sliderValueStyle}>{epsilon.toFixed(2)}</div>
       </ControlGroup>
 
-      <ControlGroup title="Počet úrovní polarizácie n">
+      <ControlGroup title={t("polarizationLevels")}>
         <input
           type="range"
           min="1"
@@ -444,7 +382,7 @@ export default function PolarizationPage() {
             checked={showSorted}
             onChange={(e) => setShowSorted(e.target.checked)}
           />
-          <span>Zobraziť zoradené hodnoty</span>
+          <span>{t("showSortedValues")}</span>
         </label>
 
         <label style={checkStyle}>
@@ -453,7 +391,7 @@ export default function PolarizationPage() {
             checked={showHistogram}
             onChange={(e) => setShowHistogram(e.target.checked)}
           />
-          <span>Zobraziť histogram</span>
+          <span>{t("showHistogram")}</span>
         </label>
       </div>
     </div>
@@ -461,57 +399,57 @@ export default function PolarizationPage() {
 
   return (
     <AppShell sidebarControls={sidebarControls}>
-         <BackButton />
+      <BackButton />
+
       <PageTitle
-        title="Channel polarization demo (BEC)"
-        description="Táto časť ukazuje princíp polarizácie kanálov na príklade BEC (Binary Erasure Channel)."
+        title={t("polarizationPageTitle")}
+        description={t("polarizationPageDescription")}
       />
 
-      <div
-        style={{
-          fontSize: 17,
-          lineHeight: 1.8,
-          color: "#374151",
-          marginBottom: 20,
-          maxWidth: 1200,
-        }}
-      >
-        Pre základný kanál s pravdepodobnosťou vymazania <strong>ε</strong> vznikajú po jednom kroku dva podkanály:
+      <div style={introStyle}>
+        {t("polarizationIntroPart1")} <strong>ε</strong>{" "}
+        {t("polarizationIntroPart2")}
         <ul style={{ marginTop: 10, marginBottom: 10 }}>
-          <li>horší podkanál: <strong>ε⁻ = 2ε - ε²</strong></li>
-          <li>lepší podkanál: <strong>ε⁺ = ε²</strong></li>
+          <li>
+            {t("worseSubchannel")}: <strong>ε⁻ = 2ε - ε²</strong>
+          </li>
+          <li>
+            {t("betterSubchannel")}: <strong>ε⁺ = ε²</strong>
+          </li>
         </ul>
-        Po opakovaní tejto transformácie sa podkanály postupne polarizujú: niektoré sú veľmi spoľahlivé
-        (<strong>ε blízko 0</strong>), iné veľmi nespoľahlivé (<strong>ε blízko 1</strong>).
+        {t("polarizationIntroPart3")} (<strong>{t("epsilonClose0")}</strong>),{" "}
+        {t("polarizationIntroPart4")} (<strong>{t("epsilonClose1")}</strong>).
       </div>
 
       <div style={{ display: "grid", gap: 34 }}>
         <div>
-          <SectionTitle>Základné informácie</SectionTitle>
+          <SectionTitle>{t("basicInformation")}</SectionTitle>
           <InfoBox>
-            Počet výsledných podkanálov: <strong>N = 2^{n} = {2 ** n}</strong>. Pri ε = {epsilon.toFixed(2)} sa po {n} úrovniach vytvorí {2 ** n} syntetizovaných podkanálov.
+            {t("numberOfResultingSubchannels")}:{" "}
+            <strong>N = 2^{n} = {2 ** n}</strong>.{" "}
+            {t("atEpsilon")} {epsilon.toFixed(2)} {t("afterLevels")} {n}{" "}
+            {t("levelsCreates")} {2 ** n} {t("syntheticSubchannels")}.
           </InfoBox>
         </div>
 
         <div>
-          <SectionTitle>Výsledné hodnoty podkanálov</SectionTitle>
+          <SectionTitle>{t("resultingSubchannelValues")}</SectionTitle>
           <LineChartCard
-            title="Podkanály po polarizácii (prirodzené poradie)"
+            title={t("subchannelsNaturalOrder")}
             values={finalValues}
-            xLabel="Index podkanála"
-            yLabel="Hodnota ε"
+            xLabel={t("subchannelIndex")}
+            yLabel={t("epsilonValue")}
           />
         </div>
 
         {showSorted && (
           <div>
-            <SectionTitle>Zoradené hodnoty podkanálov</SectionTitle>
+            <SectionTitle>{t("sortedSubchannelValues")}</SectionTitle>
             <LineChartCard
-              title="Zoradené hodnoty ε po polarizácii"
+              title={t("sortedEpsilonValues")}
               values={sortedValues}
-              xLabel="Normalizovaný index"
-              yLabel="Hodnota ε"
-              sorted
+              xLabel={t("normalizedIndex")}
+              yLabel={t("epsilonValue")}
               normalizedX
             />
           </div>
@@ -519,45 +457,50 @@ export default function PolarizationPage() {
 
         {showHistogram && (
           <div>
-            <SectionTitle>Histogram hodnôt</SectionTitle>
+            <SectionTitle>{t("histogramOfValues")}</SectionTitle>
             <HistogramCard
-              title="Histogram výsledných hodnôt ε"
+              title={t("histogramOfEpsilonValues")}
               bins={histogramBins}
+              t={t}
             />
           </div>
         )}
 
         <div>
-          <SectionTitle>Stručné vysvetlenie</SectionTitle>
+          <SectionTitle>{t("shortExplanation")}</SectionTitle>
 
-          <div
-            style={{
-              padding: "18px 20px",
-              borderRadius: 18,
-              background: "#e8f5e9",
-              border: "1px solid #c8e6c9",
-              color: "#2e7d32",
-              fontSize: 17,
-              lineHeight: 1.7,
-              marginBottom: 22,
-            }}
-          >
-            Po polarizácii vzniklo <strong>{goodCount} lepších</strong> a <strong>{badCount} horších</strong> podkanálov (pri hranici ε = 0.5).
+          <div style={greenBoxStyle}>
+            {t("afterPolarization")}{" "}
+            <strong>
+              {goodCount} {t("betterPlural")}
+            </strong>{" "}
+            {t("and")}{" "}
+            <strong>
+              {badCount} {t("worsePlural")}
+            </strong>{" "}
+            {t("subchannelsThreshold")}
           </div>
 
           <div style={{ color: "#374151", fontSize: 17, lineHeight: 1.8 }}>
             <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 10 }}>
-              Ako tomu rozumieť?
+              {t("howToUnderstand")}
             </div>
 
             <ul style={{ marginTop: 0, paddingLeft: 24 }}>
-              <li>Hodnoty <strong>blízko 0</strong> znamenajú, že podkanál je <strong>spoľahlivý</strong>.</li>
-              <li>Hodnoty <strong>blízko 1</strong> znamenajú, že podkanál je <strong>nespoľahlivý</strong>.</li>
-              <li>S rastúcim počtom úrovní <strong>n</strong> sa hodnoty čoraz viac rozdeľujú k extrémom 0 a 1.</li>
+              <li>
+                {t("valuesNear0")} <strong>{t("reliable")}</strong>.
+              </li>
+              <li>
+                {t("valuesNear1")} <strong>{t("unreliable")}</strong>.
+              </li>
+              <li>
+                {t("withIncreasingLevels")}
+              </li>
             </ul>
 
             <div style={{ marginTop: 16 }}>
-              Práve tento jav je základom polárnych kódov: na prenos informačných bitov sa vyberajú len tie <strong>najspoľahlivejšie podkanály</strong>.
+              {t("polarCodesBasisPart1")}{" "}
+              <strong>{t("mostReliableSubchannels")}</strong>.
             </div>
           </div>
         </div>
@@ -566,20 +509,38 @@ export default function PolarizationPage() {
   );
 }
 
-const thStyle = {
-  textAlign: "left",
-  padding: "14px 16px",
-  borderBottom: "1px solid #e5e7eb",
-  background: "#f8fafc",
-  color: "#6b7280",
-  fontSize: 15,
+const chartTitleStyle = {
+  fontSize: 18,
+  fontWeight: 800,
+  color: "#374151",
+  marginBottom: 14,
 };
 
-const tdStyle = {
-  padding: "14px 16px",
-  borderBottom: "1px solid #eef2f7",
+const chartBoxStyle = {
+  border: "1px solid #e5e7eb",
+  borderRadius: 18,
+  background: "#fff",
+  padding: 14,
+  overflowX: "auto",
+};
+
+const introStyle = {
+  fontSize: 17,
+  lineHeight: 1.8,
   color: "#374151",
-  fontSize: 15,
+  marginBottom: 20,
+  maxWidth: 1200,
+};
+
+const greenBoxStyle = {
+  padding: "18px 20px",
+  borderRadius: 18,
+  background: "#e8f5e9",
+  border: "1px solid #c8e6c9",
+  color: "#2e7d32",
+  fontSize: 17,
+  lineHeight: 1.7,
+  marginBottom: 22,
 };
 
 const sliderValueStyle = {

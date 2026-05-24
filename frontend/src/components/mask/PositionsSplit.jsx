@@ -1,13 +1,15 @@
 import React from "react";
 import SectionTitle from "../common/SectionTitle.jsx";
 import SubsectionTitle from "../common/SubsectionTitle.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function PositionsSplit({ result }) {
   if (!result) return null;
+  const { t } = useLanguage();
 
   return (
     <div>
-      <SectionTitle>Rozdelenie pozícií</SectionTitle>
+      <SectionTitle>{t("positionsSplitTitle")}</SectionTitle>
 
       <div
         style={{
@@ -17,22 +19,22 @@ export default function PositionsSplit({ result }) {
         }}
       >
         <div>
-          <SubsectionTitle>Info pozície</SubsectionTitle>
+          <SubsectionTitle>{t("infoPositions")}</SubsectionTitle>
           <div style={monoBox}>
             {result.info_positions.join(", ")}
           </div>
           <div style={mutedText}>
-            Tieto pozície prenášajú informačné bity.
+            {t("infoPositionsDescription")}
           </div>
         </div>
 
         <div>
-          <SubsectionTitle>Frozen pozície</SubsectionTitle>
+          <SubsectionTitle>{t("frozenPositions")}</SubsectionTitle>
           <div style={monoBox}>
             {result.frozen_positions.join(", ")}
           </div>
           <div style={mutedText}>
-            Tieto pozície sú pevne nastavené, spravidla na hodnotu 0.
+            {t("frozenPositionsDescription")}
           </div>
         </div>
       </div>

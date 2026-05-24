@@ -248,7 +248,7 @@ def sc_decode(
     llr: list[float],
     mask: list[int],
     return_trace: bool = True,
-) -> tuple[list[int], list[int], list[dict]]:
+) -> tuple[list[int], list[dict]]:
     N = len(llr)
     validate_code_params(N, 1)
     validate_llr(llr, N)
@@ -268,10 +268,15 @@ def sc_decode(
     u_hat = decisions
     estimated_bits = [u_hat[i] for i in range(N) if mask[i] == 1]
 
-    if return_trace:
-        return u_hat, estimated_bits, trace
+    visible_trace = [
+        step for step in trace
+        if step.get("step_type") in ("leaf_decision", "combine")
+    ]
 
-    return u_hat, estimated_bits, []
+    if return_trace:
+        return estimated_bits, visible_trace
+
+    return estimated_bits, []
 
 def hard_decision(llr: float) -> int:
     return 0 if llr >= 0 else 1

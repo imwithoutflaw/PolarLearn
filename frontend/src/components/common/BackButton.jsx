@@ -1,26 +1,30 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function BackButton() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   return (
     <button
-      onClick={() => navigate("/HomePage")}
-      style={{
-        marginBottom: 20,
-        padding: "10px 16px",
-        borderRadius: 12,
-        border: "none",
-        background: "#e2e8f0",
-        cursor: "pointer",
-        fontWeight: 600,
-        display: "inline-flex",
-        alignItems: "center",
-        gap: 8,
-      }}
+      type="button"
+      onClick={() => navigate("/")}
+      style={buttonStyle}
     >
-      ← Späť na menu
+      ← {t("backToMenu")}
     </button>
   );
 }
+
+const buttonStyle = {
+  padding: "14px 18px",
+  borderRadius: 18,
+  border: "none",
+  background: "#dbe1ea",
+  color: "#1f2937",
+  fontSize: 16,
+  fontWeight: 700,
+  cursor: "pointer",
+  marginBottom: 24,
+};
