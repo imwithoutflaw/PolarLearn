@@ -13,6 +13,7 @@ def build_mask_response(N: int, K: int, design_ebn0_db: float) -> MaskResponse:
         N=N,
         K=K,
         rate=K / N,
+        design_ebn0_db=design_ebn0_db,
         info_positions=info_positions,
         frozen_positions=frozen_positions,
         mask=mask,
