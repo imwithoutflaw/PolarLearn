@@ -88,9 +88,15 @@ PolarLearn/
 Install the following before you start:
 
 - **Git** (for cloning)
-- **Python 3.10+** (3.11 recommended)
+- **Python 3.13** (recommended and tested)
 - **Node.js 18+** (LTS recommended)
 - **npm 9+** (usually comes with Node)
+
+> **Python compatibility**
+>
+> This application was developed and tested using **Python 3.13**.
+> Some dependencies may not yet be fully compatible with **Python 3.14**.
+> If installation or dependency errors occur, use Python 3.13.
 
 To verify:
 
