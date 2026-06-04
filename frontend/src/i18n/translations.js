@@ -6,7 +6,7 @@ export const translations = {
     modules: "Moduly",
 
     mask: "Konštrukcia masky",
-    maskDesc: "Návrh informačných a frozen bitov",
+    maskDesc: "Návrh informačných a zmrazených bitov",
 
     encoder: "Encoder",
     encoderDesc: "Polárne kódovanie krok za krokom",
@@ -17,13 +17,13 @@ export const translations = {
     ber: "BER simulácia",
     berDesc: "Simulácia bitovej chybovosti",
 
-    polarization: "Channel polarization",
+    polarization: "Polarizácia kanála",
     polarizationDesc: "Vizualizácia polarizácie kanálov",
 
-    maskPageTitle: "Konštrukcia kódu – informačné a frozen bity",
+    maskPageTitle: "Konštrukcia kódu – informačné a zmrazené bity",
 
     maskPageDescription:
-      "Táto časť ukazuje, ktoré pozície v polárnom kóde budú použité na prenos informačných bitov a ktoré budú nastavené ako frozen bity. Používateľ môže meniť parametre kódu a sledovať, ako sa mení výsledná maska.",
+      "Táto časť ukazuje, ktoré pozície v polárnom kóde budú použité na prenos informačných bitov a ktoré budú nastavené ako zmrazené bity. Používateľ môže meniť parametre kódu a sledovať, ako sa mení výsledná maska.",
 
     codeParameters: "Parametre kódu",
     codeLengthN: "Dĺžka kódu N",
@@ -32,7 +32,7 @@ export const translations = {
     calculatingMask: "Počítam masku...",
 
     maskSummaryInfo:
-      "Na základe zvolenej dĺžky kódu N, kódového pomeru R a návrhovej hodnoty Eb/N0 sa vytvorí maska informačných a frozen bitov. Spoľahlivejšie podkanály sú použité na prenos informačných bitov.",
+      "Na základe zvolenej dĺžky kódu N, kódového pomeru R a návrhovej hodnoty Eb/N0 sa vytvorí maska informačných a zmrazených bitov. Spoľahlivejšie podkanály sú použité na prenos informačných bitov.",
 
     selectedParameters: "Zvolené parametre",
 
@@ -44,14 +44,14 @@ export const translations = {
     infoPositionsDescription:
       "Tieto pozície prenášajú informačné bity.",
 
-    frozenPositions: "Frozen pozície",
+    frozenPositions: "Zmrazené pozície",
     frozenPositionsDescription:
       "Tieto pozície sú pevne nastavené, spravidla na hodnotu 0.",
 
     maskVisualization: "Vizualizácia masky",
 
     maskVisualizationDescription:
-      "Hodnota 1 predstavuje informačný bit, hodnota 0 predstavuje frozen bit.",
+      "Hodnota 1 predstavuje informačný bit, hodnota 0 predstavuje zmrazený bit.",
 
     maskInterpretationTitle: "Stručné vysvetlenie",
 
@@ -62,7 +62,7 @@ export const translations = {
 
     and: "a",
 
-    frozenPositionsLower: "frozen pozícií",
+    frozenPositionsLower: "zmrazených pozícií",
 
     maskInterpretationPart2:
       "Pri väčšej hodnote K sa do prenosu zaraďuje viac podkanálov, vrátane menej spoľahlivých. Pri menšej hodnote K sa využívajú len najspoľahlivejšie pozície.",
@@ -91,7 +91,7 @@ export const translations = {
     encoderSummaryInfo:
       "Informačné bity sa najprv vložia na spoľahlivé pozície u-vektora a potom sa vykoná polárna transformácia po jednotlivých stage-och až po výsledné kódové slovo.",
 
-    uVectorWithFrozen: "u (s vloženými frozen bitmi)",
+    uVectorWithFrozen: "u (so vloženými zmrazenými bitmi)",
 
     codewordC: "kódové slovo c",
 
@@ -99,7 +99,7 @@ export const translations = {
     butterflyDiagramDescription:
       "V každom stage sa v horných vetvách robí XOR s príslušnou spodnou vetvou (spodná vetva ostáva). Čísla pri uzloch ukazujú hodnoty po každom stage.",
 
-    generatorMatrixTitle: "Generátorová matica G",
+    generatorMatrixTitle: "Generujúca matica G",
     generatorMatrixDescriptionPart1:
       "Kódovanie polárneho kódu je možné zapísať aj maticovo ako",
     where: "kde",
@@ -157,7 +157,7 @@ export const translations = {
     simulationParameters: "Parametre simulácie",
     berPageTitle: "BER simulácia polárnych kódov",
     berPageDescription:
-      "Táto časť umožňuje simulovať bitovú chybovosť (BER) polárnych kódov pri SC dekódovaní na AWGN kanáli a porovnať výsledok s teoretickou BER nekódovaného BPSK prenosu.",
+      "Táto časť umožňuje simulovať BER (pravdepodobnosť chyby na bit) polárnych kódov pri SC dekódovaní na AWGN kanáli a porovnať výsledok s teoretickou BER nekódovaného BPSK prenosu.",
     simulationRunning: "Simulácia prebieha...",
     simulationFinished: "Simulácia dokončená.",
     simulationHint:
@@ -179,11 +179,11 @@ export const translations = {
     notEnoughErrors: "nedostatok chýb",
 
     berInterpretationText:
-      "So zvyšujúcou sa hodnotou Eb/N0 chybovosť klesá. Pri väčších hodnotách N sa zvyčajne prejavuje lepší výkon polárneho kódu. Porovnanie s nekódovaným BPSK ukazuje prínos kódovania pri vhodných parametroch.",
+      "So zvyšujúcou sa hodnotou Eb/N0 pravdepodobnosť chyby na bit klesá. Pri väčších hodnotách N sa zvyčajne prejavuje lepší výkon polárneho kódu. Porovnanie s nekódovaným BPSK ukazuje prínos kódovania pri vhodných parametroch.",
 
-    polarizationPageTitle: "Channel polarization demo (BEC)",
+    polarizationPageTitle: "Demo polarizácie kanála (BEC)",
     polarizationPageDescription:
-      "Táto časť ukazuje princíp polarizácie kanálov na príklade BEC (Binary Erasure Channel).",
+      "Táto časť ukazuje princíp polarizácie kanála na príklade BEC (Binary Erasure Channel).",
     erasureProbability: "Pravdepodobnosť vymazania ε",
     polarizationLevels: "Počet úrovní polarizácie n",
     showSortedValues: "Zobraziť zoradené hodnoty",
@@ -256,7 +256,7 @@ export const translations = {
       "Vyber modul a sleduj správanie polárnych kódov krok za krokom.",
     homeWhatCanDo: "Čo môžeš robiť v tejto aplikácii",
     homeActionMask:
-      "Konštruovať masky informačných a frozen bitov pre zvolené parametre kódu.",
+      "Konštruovať masky informačných a zmrazených bitov pre zvolené parametre kódu.",
     homeActionEncoder:
       "Vizualizovať jednotlivé stage-e encoderu a sledovať butterfly transformáciu.",
     homeActionDecoder:
